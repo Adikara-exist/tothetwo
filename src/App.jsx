@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { hasEnvConfig, supabase } from './lib/supabase';
 
 const formatRupiah = (val) =>
@@ -125,7 +125,6 @@ function WasteInteractiveChart({ limbahList }) {
         </div>
       ) : (
         <div className="mt-5 grid grid-cols-1 items-center gap-6 md:grid-cols-12">
-          {/* Donut Chart SVG */}
           <div className="flex flex-col items-center justify-center md:col-span-5">
             <div className="relative h-48 w-48">
               <svg viewBox="0 0 160 160" className="h-full w-full -rotate-90 transform">
@@ -185,7 +184,6 @@ function WasteInteractiveChart({ limbahList }) {
             </p>
           </div>
 
-          {/* Interactive Breakdown Bars */}
           <div className="space-y-3 md:col-span-7">
             {summary.breakdown.map((item) => {
               const isSelected = selectedKey === item.key;
@@ -352,6 +350,8 @@ export default function App() {
   const [manualLimbahBerat, setManualLimbahBerat] = useState('');
   const [manualLimbahTindak, setManualLimbahTindak] = useState('Pupuk Organik');
 
+  const isFetchingRef = useRef(false);
+
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 4000);
@@ -380,105 +380,131 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const loadAllData = async () => {
-    if (!supabase || (!session && !isGuest)) return;
-    setLoadingData(true);
-    setErrorMsg('');
-    try {
-      if (isGuest && !session) {
-        // Mode Guest: hanya membaca data limbah & kuantitas produksi (tanpa data finansial/stok internal)
-        const [resLimbah, resTransaksi] = await Promise.all([
-          supabase
-            .from('limbah')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(100),
-          supabase
-            .from('transaksi')
-            .select('id, nama_produk, qty, created_at')
-            .order('created_at', { ascending: false })
-            .limit(100),
-        ]);
+  const loadAllData = useCallback(
+    async (silent = false) => {
+      if (!supabase || (!session && !isGuest) || isFetchingRef.current) return;
+      isFetchingRef.current = true;
+      if (!silent) {
+        setLoadingData(true);
+        setErrorMsg('');
+      }
+      try {
+        if (isGuest && !session) {
+          const [resLimbah, resTransaksi] = await Promise.all([
+            supabase
+              .from('limbah')
+              .select('*')
+              .order('created_at', { ascending: false })
+              .limit(100),
+            supabase
+              .from('transaksi')
+              .select('id, nama_produk, qty, created_at')
+              .order('created_at', { ascending: false })
+              .limit(100),
+          ]);
 
-        if (resLimbah.error) throw resLimbah.error;
-        if (resTransaksi.error) throw resTransaksi.error;
+          if (resLimbah.error) throw resLimbah.error;
+          if (resTransaksi.error) throw resTransaksi.error;
 
-        setLimbahList(resLimbah.data || []);
+          setLimbahList(resLimbah.data || []);
+          setTransaksiList(resTransaksi.data || []);
+          setBahanBaku([]);
+          setProdukList([]);
+          setResepList([]);
+          setPengadaanList([]);
+          return;
+        }
+
+        const [resBahan, resProduk, resResep, resTransaksi, resLimbah, resPengadaan] =
+          await Promise.all([
+            supabase.from('bahan_baku').select('*').order('nama', { ascending: true }),
+            supabase.from('produk').select('*').order('harga', { ascending: true }),
+            supabase.from('resep').select('*'),
+            supabase
+              .from('transaksi')
+              .select('*')
+              .order('created_at', { ascending: false })
+              .limit(50),
+            supabase
+              .from('limbah')
+              .select('*')
+              .order('created_at', { ascending: false })
+              .limit(50),
+            supabase
+              .from('pengadaan')
+              .select('*')
+              .order('created_at', { ascending: false })
+              .limit(30),
+          ]);
+
+        const firstError =
+          resBahan.error ||
+          resProduk.error ||
+          resResep.error ||
+          resTransaksi.error ||
+          resLimbah.error ||
+          resPengadaan.error;
+
+        if (firstError) throw firstError;
+
+        setBahanBaku(resBahan.data || []);
+        setProdukList(resProduk.data || []);
+        setResepList(resResep.data || []);
         setTransaksiList(resTransaksi.data || []);
-        setBahanBaku([]);
-        setProdukList([]);
-        setResepList([]);
-        setPengadaanList([]);
-        return;
+        setLimbahList(resLimbah.data || []);
+        setPengadaanList(resPengadaan.data || []);
+
+        setSelectedProdukId((prev) => prev || resProduk.data?.[0]?.id || '');
+        setEditMenuId((prev) => prev || resProduk.data?.[0]?.id || '');
+        setEditMenuHarga((prev) => prev || (resProduk.data?.[0] ? String(resProduk.data[0].harga) : ''));
+        setSelectedBahanId((prev) => prev || resBahan.data?.[0]?.id || '');
+        setResepBahanId((prev) => prev || resBahan.data?.[0]?.id || '');
+      } catch (err) {
+        if (!silent) {
+          if (isGuest && !session) {
+            setErrorMsg(
+              'Akses baca publik belum diaktifkan di Supabase. Jalankan perintah GRANT SELECT untuk role anon di SQL Editor.'
+            );
+          } else {
+            setErrorMsg(err.message || 'Gagal memuat data dari Supabase.');
+          }
+        }
+      } finally {
+        isFetchingRef.current = false;
+        if (!silent) {
+          setLoadingData(false);
+        }
       }
+    },
+    [session, isGuest]
+  );
 
-      // Mode Admin Full Access
-      const [resBahan, resProduk, resResep, resTransaksi, resLimbah, resPengadaan] =
-        await Promise.all([
-          supabase.from('bahan_baku').select('*').order('nama', { ascending: true }),
-          supabase.from('produk').select('*').order('harga', { ascending: true }),
-          supabase.from('resep').select('*'),
-          supabase
-            .from('transaksi')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(50),
-          supabase
-            .from('limbah')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(50),
-          supabase
-            .from('pengadaan')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(30),
-        ]);
-
-      const firstError =
-        resBahan.error ||
-        resProduk.error ||
-        resResep.error ||
-        resTransaksi.error ||
-        resLimbah.error ||
-        resPengadaan.error;
-
-      if (firstError) throw firstError;
-
-      setBahanBaku(resBahan.data || []);
-      setProdukList(resProduk.data || []);
-      setResepList(resResep.data || []);
-      setTransaksiList(resTransaksi.data || []);
-      setLimbahList(resLimbah.data || []);
-      setPengadaanList(resPengadaan.data || []);
-
-      if (!selectedProdukId && resProduk.data?.length) {
-        setSelectedProdukId(resProduk.data[0].id);
-        setEditMenuId(resProduk.data[0].id);
-        setEditMenuHarga(String(resProduk.data[0].harga));
-      }
-      if (!selectedBahanId && resBahan.data?.length) {
-        setSelectedBahanId(resBahan.data[0].id);
-        setResepBahanId(resBahan.data[0].id);
-      }
-    } catch (err) {
-      if (isGuest && !session) {
-        setErrorMsg(
-          'Akses baca publik belum diaktifkan di Supabase. Jalankan perintah GRANT SELECT untuk role anon di SQL Editor.'
-        );
-      } else {
-        setErrorMsg(err.message || 'Gagal memuat data dari Supabase.');
-      }
-    } finally {
-      setLoadingData(false);
-    }
-  };
-
+  // Sinkronisasi awal + Realtime WebSocket + Polling latar belakang setiap 5 detik
   useEffect(() => {
-    if (session || isGuest) {
-      loadAllData();
-    }
-  }, [session, isGuest]);
+    if (!supabase || (!session && !isGuest)) return;
+
+    loadAllData(false);
+
+    const channel = supabase
+      .channel('sipromin-live-sync')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public' },
+        () => {
+          loadAllData(true);
+        }
+      )
+      .subscribe();
+
+    const pollInterval = setInterval(() => {
+      loadAllData(true);
+    }, 5000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(pollInterval);
+    };
+  }, [session, isGuest, loadAllData]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -654,7 +680,7 @@ export default function App() {
       }
 
       setQtyJual(1);
-      await loadAllData();
+      await loadAllData(true);
       showToast(`Penjualan ${qty}x ${produk.nama} tersimpan. Stok terpotong otomatis.`);
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menyimpan transaksi.');
@@ -690,7 +716,7 @@ export default function App() {
       setJumlahMasuk('');
       setTotalHargaBeli('');
       setCatatanBeli('');
-      await loadAllData();
+      await loadAllData(true);
       showToast(`Stok ${bahan.nama} bertambah +${masuk} ${bahan.satuan}.`);
     } catch (err) {
       setErrorMsg(err.message || 'Gagal mencatat pengadaan.');
@@ -716,7 +742,7 @@ export default function App() {
       setNewBahanStok('');
       setNewBahanMin('');
       setNewBahanLimbah('0');
-      await loadAllData();
+      await loadAllData(true);
       showToast('Bahan baku baru ditambahkan.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menambah bahan baku.');
@@ -739,7 +765,7 @@ export default function App() {
       setNewMenuHarga('');
       setEditMenuId(data.id);
       setEditMenuHarga(String(data.harga));
-      await loadAllData();
+      await loadAllData(true);
       showToast('Menu baru ditambahkan. Silakan atur takaran resepnya.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menambah menu.');
@@ -756,7 +782,7 @@ export default function App() {
         .update({ harga: Number(editMenuHarga) })
         .eq('id', editMenuId);
       if (error) throw error;
-      await loadAllData();
+      await loadAllData(true);
       showToast('Harga menu diperbarui.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal memperbarui harga.');
@@ -778,7 +804,7 @@ export default function App() {
       );
       if (error) throw error;
       setResepTakaran('');
-      await loadAllData();
+      await loadAllData(true);
       showToast('Takaran resep disimpan.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menyimpan takaran resep.');
@@ -790,7 +816,7 @@ export default function App() {
     try {
       const { error } = await supabase.from('resep').delete().eq('id', resepId);
       if (error) throw error;
-      await loadAllData();
+      await loadAllData(true);
       showToast('Bahan dihapus dari resep.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menghapus bahan resep.');
@@ -806,7 +832,7 @@ export default function App() {
         .update({ tindak_lanjut: nextStatus })
         .eq('id', limbahId);
       if (error) throw error;
-      await loadAllData();
+      await loadAllData(true);
       showToast('Status pemanfaatan limbah diperbarui.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal memperbarui status limbah.');
@@ -825,7 +851,7 @@ export default function App() {
       });
       if (error) throw error;
       setManualLimbahBerat('');
-      await loadAllData();
+      await loadAllData(true);
       showToast('Catatan limbah organik ditambahkan.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal mencatat limbah.');
@@ -872,7 +898,6 @@ export default function App() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Kartu 1: Login Admin */}
           <div className="rounded-2xl border border-stone-300 bg-white p-6 shadow-sm sm:p-7">
             <span className="rounded bg-stone-100 px-2.5 py-1 text-xs font-semibold text-ink">
               Akses Internal (Full Access)
@@ -931,7 +956,6 @@ export default function App() {
             </form>
           </div>
 
-          {/* Kartu 2: Akses Guest / Auditor SDG 12 */}
           <div className="flex flex-col justify-between rounded-2xl border border-emerald-300 bg-emerald-50/50 p-6 shadow-sm sm:p-7">
             <div>
               <span className="rounded bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-leaf">
@@ -986,12 +1010,16 @@ export default function App() {
         <header className="border-b border-stone-300 bg-white">
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-semibold uppercase tracking-wider text-leaf">
                   SIPROMIN • MODE GUEST (PUBLIC AUDIT)
                 </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-leaf">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-leaf" />
+                  Live Sync
+                </span>
               </div>
-              <h1 className="text-lg font-bold text-ink">
+              <h1 className="mt-0.5 text-lg font-bold text-ink">
                 Pemantauan Kinerja SDG 12 — UMKM Ngejeruk Minuman Segar
               </h1>
             </div>
@@ -1030,8 +1058,7 @@ export default function App() {
             </p>
           ) : (
             <>
-              {/* Banner Status Kelayakan Penerapan SDG 12 */}
-              <div className={`rounded-xl border p-5 ${metrics.statusSdg.colorClass}`}>
+              <div className={`rounded-xl border p-5 transition-colors duration-300 ${metrics.statusSdg.colorClass}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-wider opacity-80">
@@ -1042,15 +1069,14 @@ export default function App() {
                   </div>
                   <button
                     type="button"
-                    onClick={loadAllData}
+                    onClick={() => loadAllData(false)}
                     className="min-h-[40px] rounded-lg border border-current/25 bg-white/80 px-3 py-2 text-xs font-semibold hover:bg-white"
                   >
-                    Segarkan Data
+                    Segarkan Manual
                   </button>
                 </div>
               </div>
 
-              {/* 4 Metrik Keberlanjutan Publik */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <p className="text-xs font-semibold uppercase text-muted">
@@ -1086,16 +1112,13 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Chart Interaktif Limbah */}
               <WasteInteractiveChart limbahList={limbahList} />
 
-              {/* Evaluasi Dampak Sistem Lama vs SIPROMIN */}
               <ImpactComparisonPanel
                 rasioSdg12={metrics.rasioSdg12}
                 totalCupTerjual={metrics.totalCupTerjual}
               />
 
-              {/* Log Transparansi Pengolahan Limbah (Read-Only) */}
               <div className="rounded-xl border border-stone-300 bg-white p-5">
                 <h3 className="text-base font-bold text-ink">
                   Log Transparansi Pengolahan Limbah Organik (Read-Only)
@@ -1166,10 +1189,16 @@ export default function App() {
       <header className="border-b border-stone-300 bg-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider text-leaf">
-              SIPROMIN • MODE ADMIN (FULL ACCESS)
-            </span>
-            <h1 className="text-lg font-bold text-ink">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-leaf">
+                SIPROMIN • MODE ADMIN (FULL ACCESS)
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-leaf">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-leaf" />
+                Live Sync
+              </span>
+            </div>
+            <h1 className="mt-0.5 text-lg font-bold text-ink">
               Halo, Admin! Ngejeruk Minuman Segar
             </h1>
           </div>
@@ -1249,14 +1278,13 @@ export default function App() {
                   </h2>
                   <button
                     type="button"
-                    onClick={loadAllData}
+                    onClick={() => loadAllData(false)}
                     className="min-h-[44px] rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium hover:bg-stone-100"
                   >
                     Muat Ulang Data
                   </button>
                 </div>
 
-                {/* 4 Metrik Utama */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <div className="rounded-xl border border-stone-300 bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5">
                     <p className="text-sm font-medium text-muted">Stok Bahan Basah</p>
@@ -1287,16 +1315,13 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Chart Interaktif Pengolahan Limbah SDG 12 */}
                 <WasteInteractiveChart limbahList={limbahList} />
 
-                {/* Evaluasi Dampak Sistem Lama vs SIPROMIN */}
                 <ImpactComparisonPanel
                   rasioSdg12={metrics.rasioSdg12}
                   totalCupTerjual={metrics.totalCupTerjual}
                 />
 
-                {/* Peringatan Stok Menipis */}
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h3 className="text-base font-bold text-ink">
                     Peringatan Persediaan Menipis
@@ -1323,7 +1348,6 @@ export default function App() {
                   )}
                 </div>
 
-                {/* Transaksi Terbaru */}
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h3 className="text-base font-bold text-ink">Transaksi Terbaru</h3>
                   {transaksiList.length === 0 ? (
@@ -1861,7 +1885,6 @@ export default function App() {
 
             {activeTab === 'limbah' && (
               <section aria-labelledby="heading-limbah" className="space-y-6">
-                {/* Chart Interaktif di Tab Limbah juga agar langsung terlihat saat tindak lanjut diubah */}
                 <WasteInteractiveChart limbahList={limbahList} />
 
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
