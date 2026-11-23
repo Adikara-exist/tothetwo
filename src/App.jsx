@@ -89,7 +89,7 @@ function GuestAvatar() {
   return (
     <div
       aria-hidden="true"
-      className="flex h-20 w-20 items-end justify-center overflow-hidden rounded-full bg-stone-300 text-stone-500 ring-4 ring-stone-200"
+      className="flex h-20 w-20 items-end justify-center overflow-hidden rounded-full bg-stone-300 text-stone-600 ring-4 ring-stone-200"
     >
       <svg viewBox="0 0 48 48" className="h-16 w-16" fill="currentColor">
         <circle cx="24" cy="17" r="8.5" />
@@ -138,7 +138,7 @@ function WasteInteractiveChart({ limbahList }) {
     <div className="rounded-xl border border-stone-300 bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-base font-bold text-ink">
-          Proporsi Pengolahan Limbah (SDG 12.3 &amp; 12.5)
+          Proporsi Pengolahan Limbah Organik (SDG 12.3 &amp; 12.5)
         </h3>
         {selectedKey && (
           <button
@@ -152,7 +152,7 @@ function WasteInteractiveChart({ limbahList }) {
       </div>
 
       {summary.totalGram === 0 ? (
-        <p className="mt-4 rounded-lg border border-dashed border-stone-300 bg-paper p-6 text-center text-sm text-muted">
+        <p className="mt-4 rounded-lg border border-dashed border-stone-300 bg-paper p-6 text-center text-sm text-stone-700">
           Belum ada catatan limbah organik.
         </p>
       ) : (
@@ -204,20 +204,20 @@ function WasteInteractiveChart({ limbahList }) {
                 })}
               </svg>
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-                <span className="text-xs font-semibold text-muted">
+                <span className="text-xs font-semibold text-stone-700">
                   {activeCategory ? activeCategory.group : 'Terselamatkan'}
                 </span>
                 <span className="text-2xl font-bold text-ink">
                   {activeCategory ? `${activeCategory.pct}%` : `${summary.savedPct}%`}
                 </span>
-                <span className="text-xs font-medium text-muted">
+                <span className="text-xs font-medium text-stone-700">
                   {activeCategory
                     ? `${activeCategory.kg} kg`
                     : `${summary.savedKg} / ${summary.totalKg} kg`}
                 </span>
               </div>
             </div>
-            <p className="mt-2 text-center text-xs font-medium text-muted">
+            <p className="mt-2 text-center text-xs font-medium text-stone-700">
               Total Limbah: <strong className="text-ink">{summary.totalKg} kg</strong>
             </p>
           </div>
@@ -281,37 +281,50 @@ function ImpactComparisonPanel({ rasioSdg12, totalCupTerjual }) {
   return (
     <div className="rounded-xl border border-stone-300 bg-white p-5">
       <h3 className="text-base font-bold text-ink">
-        Perbandingan Sistem Manual vs. SIPROMIN
+        Perbandingan Pengelolaan Lama vs. SIPROMIN (Ngejeruk Bandar Lampung)
       </h3>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-stone-300 text-xs uppercase text-muted">
+          <thead className="border-b border-stone-300 text-xs uppercase text-stone-700">
             <tr>
-              <th className="py-2.5 pr-4">Aspek</th>
-              <th className="py-2.5 pr-4">Sistem Manual</th>
-              <th className="py-2.5">SIPROMIN</th>
+              <th className="py-2.5 pr-4">Aspek Operasional</th>
+              <th className="py-2.5 pr-4">Sistem Lama (Manual / WhatsApp)</th>
+              <th className="py-2.5">SIPROMIN (Terintegrasi)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200">
             <tr>
-              <td className="py-3 pr-4 font-semibold text-ink">Pemotongan Stok</td>
-              <td className="py-3 pr-4 text-muted">Catat manual, rawan selisih takaran</td>
+              <td className="py-3 pr-4 font-semibold text-ink">Persediaan Bahan &amp; Kemasan</td>
+              <td className="py-3 pr-4 text-stone-700">
+                Pantauan fisik tanpa catatan keluar-masuk akurat
+              </td>
               <td className="py-3 font-medium text-leaf">
-                Otomatis berbasis resep ({totalCupTerjual} cup tercatat)
+                Pemotongan otomatis per cup ({totalCupTerjual} cup tercatat)
               </td>
             </tr>
             <tr>
-              <td className="py-3 pr-4 font-semibold text-ink">Limbah Organik</td>
-              <td className="py-3 pr-4 text-muted">0% terdata, langsung ke TPA</td>
+              <td className="py-3 pr-4 font-semibold text-ink">Perencanaan Produksi</td>
+              <td className="py-3 pr-4 text-stone-700">
+                Perkiraan kasar pemilik, rawan buah busuk / kehabisan cup
+              </td>
               <td className="py-3 font-medium text-leaf">
-                Terukur otomatis ({rasioSdg12}% termanfaatkan)
+                Simulasi kapasitas porsi real-time dari sisa stok
               </td>
             </tr>
             <tr>
-              <td className="py-3 pr-4 font-semibold text-ink">Akses Audit SDG 12</td>
-              <td className="py-3 pr-4 text-muted">Arsip kertas tertutup</td>
+              <td className="py-3 pr-4 font-semibold text-ink">Limbah Organik (SDG 12)</td>
+              <td className="py-3 pr-4 text-stone-700">
+                Kulit jeruk &amp; ampas tidak terdata, langsung terbuang
+              </td>
               <td className="py-3 font-medium text-leaf">
-                Portal Guest read-only &amp; cetak laporan
+                Tercatat otomatis ({rasioSdg12}% dimanfaatkan)
+              </td>
+            </tr>
+            <tr>
+              <td className="py-3 pr-4 font-semibold text-ink">Transparansi &amp; Audit</td>
+              <td className="py-3 pr-4 text-stone-700">Catatan buku terpisah</td>
+              <td className="py-3 font-medium text-leaf">
+                Portal Guest read-only &amp; cetak laporan langsung
               </td>
             </tr>
           </tbody>
@@ -370,10 +383,12 @@ export default function App() {
   const [resepBahanId, setResepBahanId] = useState('');
   const [resepTakaran, setResepTakaran] = useState('');
 
-  // Form Catat Limbah Manual
+  // Form Catat Limbah Manual & Batch Action
   const [manualLimbahSumber, setManualLimbahSumber] = useState('Sisa Buah Sortir');
   const [manualLimbahBerat, setManualLimbahBerat] = useState('');
   const [manualLimbahTindak, setManualLimbahTindak] = useState('Pupuk Organik');
+  const [batchTindakLanjut, setBatchTindakLanjut] = useState('Pupuk Organik');
+  const [processingBatch, setProcessingBatch] = useState(false);
 
   const isFetchingRef = useRef(false);
 
@@ -459,7 +474,7 @@ export default function App() {
               .from('pengadaan')
               .select('*')
               .order('created_at', { ascending: false })
-              .limit(30),
+              .limit(50),
           ]);
 
         const firstError =
@@ -566,16 +581,24 @@ export default function App() {
       .filter((b) => b.satuan === 'gram')
       .reduce((acc, b) => acc + Number(b.stok_saat_ini), 0);
 
+    const totalPcsKemasan = bahanBaku
+      .filter((b) => b.satuan === 'pcs')
+      .reduce((acc, b) => acc + Number(b.stok_saat_ini), 0);
+
     const totalCupTerjual = transaksiList.reduce((acc, t) => acc + Number(t.qty || 0), 0);
     const totalOmzet = transaksiList.reduce((acc, t) => acc + Number(t.total_harga || 0), 0);
+    const totalBelanja = pengadaanList.reduce((acc, p) => acc + Number(p.total_harga || 0), 0);
+    const marginKotor = totalOmzet - totalBelanja;
 
     const totalLimbahGram = limbahList.reduce((acc, l) => acc + Number(l.berat_gram || 0), 0);
     const dimanfaatkanGram = limbahList
       .filter((l) => l.tindak_lanjut !== 'Dibuang' && l.tindak_lanjut !== 'Belum Diproses')
       .reduce((acc, l) => acc + Number(l.berat_gram || 0), 0);
-    const belumDiprosesGram = limbahList
-      .filter((l) => l.tindak_lanjut === 'Belum Diproses')
-      .reduce((acc, l) => acc + Number(l.berat_gram || 0), 0);
+    const belumDiprosesList = limbahList.filter((l) => l.tindak_lanjut === 'Belum Diproses');
+    const belumDiprosesGram = belumDiprosesList.reduce(
+      (acc, l) => acc + Number(l.berat_gram || 0),
+      0
+    );
 
     const rasioSdg12 =
       totalLimbahGram > 0 ? Math.round((dimanfaatkanGram / totalLimbahGram) * 100) : 0;
@@ -608,18 +631,57 @@ export default function App() {
       (b) => Number(b.stok_saat_ini) <= Number(b.batas_minimum)
     );
 
+    // Simulasi Kapasitas Produksi (Estimasi Sisa Cup per Menu)
+    const kapasitasMenu = produkList.map((prod) => {
+      const resepMenu = resepList.filter((r) => r.produk_id === prod.id);
+      if (resepMenu.length === 0) {
+        return { id: prod.id, nama: prod.nama, harga: prod.harga, maxCup: null, pembatas: 'Resep belum diatur' };
+      }
+
+      let maxCup = Infinity;
+      let bahanPembatas = '';
+
+      for (const item of resepMenu) {
+        const bahan = bahanBaku.find((b) => b.id === item.bahan_id);
+        const takaran = Number(item.takaran || 0);
+        if (!bahan || takaran <= 0) {
+          maxCup = 0;
+          bahanPembatas = bahan ? bahan.nama : 'Bahan tidak ditemukan';
+          break;
+        }
+        const bisaBuat = Math.floor(Number(bahan.stok_saat_ini) / takaran);
+        if (bisaBuat < maxCup) {
+          maxCup = bisaBuat;
+          bahanPembatas = bahan.nama;
+        }
+      }
+
+      return {
+        id: prod.id,
+        nama: prod.nama,
+        harga: prod.harga,
+        maxCup: maxCup === Infinity ? 0 : maxCup,
+        pembatas: bahanPembatas,
+      };
+    });
+
     return {
       totalKgBahan: (totalGramBahan / 1000).toFixed(1),
+      totalPcsKemasan,
       totalCupTerjual,
       totalOmzet,
+      totalBelanja,
+      marginKotor,
       totalKgLimbah: (totalLimbahGram / 1000).toFixed(2),
       dimanfaatkanKg: (dimanfaatkanGram / 1000).toFixed(2),
+      belumDiprosesCount: belumDiprosesList.length,
       belumDiprosesKg: (belumDiprosesGram / 1000).toFixed(2),
       rasioSdg12,
       statusSdg,
       stokMenipis,
+      kapasitasMenu,
     };
-  }, [bahanBaku, transaksiList, limbahList]);
+  }, [bahanBaku, transaksiList, pengadaanList, limbahList, produkList, resepList]);
 
   const handleRecordSale = async (e) => {
     e.preventDefault();
@@ -697,7 +759,7 @@ export default function App() {
 
       setQtyJual(1);
       await loadAllData(true);
-      showToast(`Tersimpan: ${qty}x ${produk.nama}. Stok terpotong otomatis.`);
+      showToast(`Tersimpan: ${qty}x ${produk.nama}. Stok bahan & kemasan terpotong.`);
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menyimpan transaksi.');
     } finally {
@@ -758,7 +820,7 @@ export default function App() {
       setNewBahanMin('');
       setNewBahanLimbah('0');
       await loadAllData(true);
-      showToast('Bahan baku ditambahkan.');
+      showToast('Item bahan / kemasan ditambahkan.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menambah bahan baku.');
     }
@@ -852,6 +914,27 @@ export default function App() {
     }
   };
 
+  const handleBatchProcessLimbah = async () => {
+    if (metrics.belumDiprosesCount === 0) return;
+    setProcessingBatch(true);
+    setErrorMsg('');
+    try {
+      const { error } = await supabase
+        .from('limbah')
+        .update({ tindak_lanjut: batchTindakLanjut })
+        .eq('tindak_lanjut', 'Belum Diproses');
+      if (error) throw error;
+      await loadAllData(true);
+      showToast(
+        `${metrics.belumDiprosesCount} catatan limbah menunggu diproses menjadi "${batchTindakLanjut}".`
+      );
+    } catch (err) {
+      setErrorMsg(err.message || 'Gagal memproses limbah secara massal.');
+    } finally {
+      setProcessingBatch(false);
+    }
+  };
+
   const handleAddManualLimbah = async (e) => {
     e.preventDefault();
     if (Number(manualLimbahBerat) <= 0) return;
@@ -876,7 +959,7 @@ export default function App() {
       <main className="mx-auto max-w-xl px-4 py-16">
         <div className="rounded-xl border border-amber-400 bg-amber-50 p-6 text-ink">
           <h1 className="text-xl font-bold">Konfigurasi Supabase Belum Terpasang</h1>
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-2 text-sm text-stone-700">
             Isi variabel <code>VITE_SUPABASE_URL</code> dan{' '}
             <code>VITE_SUPABASE_ANON_KEY</code> pada Environment Variables.
           </p>
@@ -888,19 +971,20 @@ export default function App() {
   if (authLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center p-4">
-        <p className="text-base font-medium text-muted">Memuat SIPROMIN...</p>
+        <p className="text-base font-medium text-stone-700">Memuat SIPROMIN...</p>
       </main>
     );
   }
 
-  // PORTAL LOGIN: ADMIN VS GUEST (RINGKAS, TANPA FILLER)
+  // PORTAL LOGIN: ADMIN VS GUEST
   if (!session && !isGuest) {
     return (
       <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-4 py-12">
         <header className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-ink sm:text-3xl">
-            SIPROMIN Ngejeruk
+            SIPROMIN: Ngejeruk Minuman Segar
           </h1>
+          <p className="mt-1 text-sm text-stone-700">Bandar Lampung</p>
         </header>
 
         <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2">
@@ -977,7 +1061,7 @@ export default function App() {
               <h2 id="portal-guest-title" className="mt-4 text-xl font-bold text-ink">
                 Guest
               </h2>
-              <p className="mt-1 text-sm text-muted">Pemantauan Limbah SDG 12</p>
+              <p className="mt-1 text-sm text-stone-700">Pemantauan Limbah SDG 12</p>
             </div>
 
             <button
@@ -1002,7 +1086,7 @@ export default function App() {
             <div className="flex items-center gap-3">
               <div
                 aria-hidden="true"
-                className="flex h-10 w-10 items-end justify-center overflow-hidden rounded-full bg-stone-300 text-stone-500"
+                className="flex h-10 w-10 items-end justify-center overflow-hidden rounded-full bg-stone-300 text-stone-600"
               >
                 <svg viewBox="0 0 48 48" className="h-8 w-8" fill="currentColor">
                   <circle cx="24" cy="17" r="8.5" />
@@ -1011,9 +1095,11 @@ export default function App() {
               </div>
               <div>
                 <h1 className="text-lg font-bold text-ink">
-                  Pemantauan SDG 12: Ngejeruk
+                  Pemantauan SDG 12: Ngejeruk Minuman Segar
                 </h1>
-                <p className="text-xs font-medium text-leaf">Guest (Read-Only)</p>
+                <p className="text-xs font-medium text-leaf">
+                  Bandar Lampung (Guest Read-Only)
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -1046,7 +1132,7 @@ export default function App() {
           )}
 
           {loadingData ? (
-            <p className="py-12 text-center text-sm text-muted">Memuat data SDG 12...</p>
+            <p className="py-12 text-center text-sm text-stone-700">Memuat data SDG 12...</p>
           ) : (
             <>
               <div className={`rounded-xl border p-4 ${metrics.statusSdg.colorClass}`}>
@@ -1069,19 +1155,19 @@ export default function App() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
-                  <p className="text-xs font-semibold uppercase text-muted">
+                  <p className="text-xs font-semibold uppercase text-stone-700">
                     Limbah Didaur Ulang
                   </p>
                   <p className="mt-2 text-3xl font-bold text-leaf">{metrics.rasioSdg12}%</p>
                 </div>
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
-                  <p className="text-xs font-semibold uppercase text-muted">
+                  <p className="text-xs font-semibold uppercase text-stone-700">
                     Berat Terselamatkan
                   </p>
                   <p className="mt-2 text-3xl font-bold text-ink">{metrics.dimanfaatkanKg} kg</p>
                 </div>
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
-                  <p className="text-xs font-semibold uppercase text-muted">
+                  <p className="text-xs font-semibold uppercase text-stone-700">
                     Belum Diproses
                   </p>
                   <p className="mt-2 text-3xl font-bold text-amber-800">
@@ -1089,7 +1175,7 @@ export default function App() {
                   </p>
                 </div>
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
-                  <p className="text-xs font-semibold uppercase text-muted">
+                  <p className="text-xs font-semibold uppercase text-stone-700">
                     Produk Terjual
                   </p>
                   <p className="mt-2 text-3xl font-bold text-ink">
@@ -1110,11 +1196,11 @@ export default function App() {
                   Log Pengolahan Limbah Organik
                 </h3>
                 {limbahList.length === 0 ? (
-                  <p className="mt-3 text-sm text-muted">Belum ada catatan limbah.</p>
+                  <p className="mt-3 text-sm text-stone-700">Belum ada catatan limbah.</p>
                 ) : (
                   <div className="mt-3 overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                      <thead className="border-b border-stone-200 text-muted">
+                      <thead className="border-b border-stone-200 text-stone-700">
                         <tr>
                           <th className="py-2 pr-3">Waktu</th>
                           <th className="py-2 pr-3">Sumber</th>
@@ -1129,7 +1215,7 @@ export default function App() {
                             WASTE_CATEGORY_META[3];
                           return (
                             <tr key={item.id}>
-                              <td className="py-2.5 pr-3 text-muted">
+                              <td className="py-2.5 pr-3 text-stone-700">
                                 {formatTanggal(item.created_at)}
                               </td>
                               <td className="py-2.5 pr-3 font-medium">{item.sumber}</td>
@@ -1159,8 +1245,8 @@ export default function App() {
   // MODE ADMIN (FULL ACCESS)
   const navItems = [
     { id: 'dashboard', label: 'Dashboard' },
-    { id: 'penjualan', label: 'Penjualan' },
-    { id: 'stok', label: 'Stok & Belanja' },
+    { id: 'penjualan', label: 'Produksi & Penjualan' },
+    { id: 'stok', label: 'Persediaan & Belanja' },
     { id: 'menu', label: 'Menu & Resep' },
     { id: 'limbah', label: 'Limbah SDG 12' },
   ];
@@ -1188,8 +1274,11 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-lg font-bold text-ink">
-                SIPROMIN: Admin Ngejeruk
+                SIPROMIN: Ngejeruk Minuman Segar
               </h1>
+              <p className="text-xs text-stone-700">
+                Halo, Admin! Operasional Harian &amp; Bazar (Bandar Lampung)
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -1211,7 +1300,7 @@ export default function App() {
         </div>
 
         <nav
-          aria-label="Navigasi Utama"
+          aria-label="Menu Utama"
           className="mx-auto flex max-w-5xl gap-2 overflow-x-auto px-4 pb-3"
         >
           {navItems.map((tab) => {
@@ -1255,7 +1344,7 @@ export default function App() {
         )}
 
         {loadingData ? (
-          <p className="py-12 text-center text-sm text-muted">
+          <p className="py-12 text-center text-sm text-stone-700">
             Menyinkronkan data operasional...
           </p>
         ) : (
@@ -1264,7 +1353,7 @@ export default function App() {
               <section aria-labelledby="heading-dashboard" className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 id="heading-dashboard" className="text-xl font-bold">
-                    Ringkasan Operasional &amp; SDG 12
+                    Ringkasan Persediaan, Produksi &amp; SDG 12
                   </h2>
                   <button
                     type="button"
@@ -1275,34 +1364,122 @@ export default function App() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {/* Kartu Metrik Utama (Termasuk Kontrol Kemasan & Margin Kotor) */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <div className="rounded-xl border border-stone-300 bg-white p-5">
-                    <p className="text-sm font-medium text-muted">Stok Bahan Basah</p>
+                    <p className="text-sm font-medium text-stone-700">Stok Bahan Basah</p>
                     <p className="mt-2 text-2xl font-bold text-ink">
                       {metrics.totalKgBahan} kg
                     </p>
+                    <p className="mt-1 text-xs text-stone-700">
+                      Jeruk lokal, Sunkist, markisa, gula
+                    </p>
                   </div>
+
                   <div className="rounded-xl border border-stone-300 bg-white p-5">
-                    <p className="text-sm font-medium text-muted">Produk Terjual</p>
+                    <p className="text-sm font-medium text-stone-700">Stok Kemasan</p>
+                    <p className="mt-2 text-2xl font-bold text-ink">
+                      {metrics.totalPcsKemasan} pcs
+                    </p>
+                    <p className="mt-1 text-xs text-stone-700">
+                      Gelas plastik &amp; sedotan terpantau
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-stone-300 bg-white p-5">
+                    <p className="text-sm font-medium text-stone-700">Produk Terjual</p>
                     <p className="mt-2 text-2xl font-bold text-ink">
                       {metrics.totalCupTerjual} cup
                     </p>
+                    <p className="mt-1 text-xs text-stone-700">
+                      Total penjualan tercatat
+                    </p>
                   </div>
+
                   <div className="rounded-xl border border-stone-300 bg-white p-5">
-                    <p className="text-sm font-medium text-muted">Total Omzet</p>
+                    <p className="text-sm font-medium text-stone-700">Total Omzet</p>
                     <p className="mt-2 text-2xl font-bold text-leaf">
                       {formatRupiah(metrics.totalOmzet)}
                     </p>
+                    <p className="mt-1 text-xs text-stone-700">
+                      Belanja bahan: {formatRupiah(metrics.totalBelanja)}
+                    </p>
                   </div>
+
                   <div className="rounded-xl border border-stone-300 bg-white p-5">
-                    <p className="text-sm font-medium text-muted">Limbah Organik</p>
+                    <p className="text-sm font-medium text-stone-700">Estimasi Margin Kotor</p>
+                    <p
+                      className={`mt-2 text-2xl font-bold ${
+                        metrics.marginKotor >= 0 ? 'text-leaf' : 'text-red-800'
+                      }`}
+                    >
+                      {formatRupiah(metrics.marginKotor)}
+                    </p>
+                    <p className="mt-1 text-xs text-stone-700">
+                      Omzet dikurangi biaya pengadaan
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-stone-300 bg-white p-5">
+                    <p className="text-sm font-medium text-stone-700">Limbah Organik</p>
                     <p className="mt-2 text-2xl font-bold text-ink">
                       {metrics.totalKgLimbah} kg
                     </p>
-                    <p className="mt-1 text-xs font-medium text-leaf">
-                      Dimanfaatkan: {metrics.rasioSdg12}%
+                    <p className="mt-1 text-xs font-semibold text-leaf">
+                      Dimanfaatkan: {metrics.rasioSdg12}% ({metrics.dimanfaatkanKg} kg)
                     </p>
                   </div>
+                </div>
+
+                {/* Simulasi Kapasitas Produksi Harian */}
+                <div className="rounded-xl border border-stone-300 bg-white p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-base font-bold text-ink">
+                      Simulasi Kapasitas Produksi (Estimasi Sisa Cup)
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('penjualan')}
+                      className="min-h-[36px] cursor-pointer rounded-md border border-leaf bg-white px-3 py-1 text-xs font-semibold text-leaf hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
+                    >
+                      Catat Penjualan
+                    </button>
+                  </div>
+                  {metrics.kapasitasMenu.length === 0 ? (
+                    <p className="mt-3 text-sm text-stone-700">
+                      Belum ada menu terdaftar. Tambahkan di tab Menu &amp; Resep.
+                    </p>
+                  ) : (
+                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {metrics.kapasitasMenu.map((item) => (
+                        <div
+                          key={item.id}
+                          className="rounded-lg border border-stone-300 bg-paper p-3.5"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="font-semibold text-ink">{item.nama}</p>
+                            <span className="text-xs font-medium text-stone-700">
+                              {formatRupiah(item.harga)}
+                            </span>
+                          </div>
+                          {item.maxCup === null ? (
+                            <p className="mt-2 text-xs font-medium text-amber-900">
+                              Resep belum diatur
+                            </p>
+                          ) : (
+                            <>
+                              <p className="mt-2 text-xl font-bold text-ink">
+                                Maks. {item.maxCup} cup
+                              </p>
+                              <p className="mt-0.5 text-xs text-stone-700">
+                                Batas stok: {item.pembatas}
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <WasteInteractiveChart limbahList={limbahList} />
@@ -1317,8 +1494,8 @@ export default function App() {
                     Peringatan Persediaan Menipis
                   </h3>
                   {metrics.stokMenipis.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted">
-                      Semua stok berada di atas batas minimum.
+                    <p className="mt-2 text-sm text-stone-700">
+                      Semua stok bahan dan kemasan berada di atas batas minimum.
                     </p>
                   ) : (
                     <ul className="mt-3 space-y-2">
@@ -1341,11 +1518,11 @@ export default function App() {
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h3 className="text-base font-bold text-ink">Transaksi Terbaru</h3>
                   {transaksiList.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted">Belum ada transaksi tercatat.</p>
+                    <p className="mt-2 text-sm text-stone-700">Belum ada transaksi tercatat.</p>
                   ) : (
                     <div className="mt-3 overflow-x-auto">
                       <table className="w-full text-left text-sm">
-                        <thead className="border-b border-stone-200 text-muted">
+                        <thead className="border-b border-stone-200 text-stone-700">
                           <tr>
                             <th className="py-2 pr-3">Waktu</th>
                             <th className="py-2 pr-3">Menu</th>
@@ -1357,7 +1534,7 @@ export default function App() {
                         <tbody className="divide-y divide-stone-200">
                           {transaksiList.slice(0, 8).map((trx) => (
                             <tr key={trx.id}>
-                              <td className="py-2.5 pr-3 text-muted">
+                              <td className="py-2.5 pr-3 text-stone-700">
                                 {formatTanggal(trx.created_at)}
                               </td>
                               <td className="py-2.5 pr-3 font-medium">{trx.nama_produk}</td>
@@ -1378,86 +1555,94 @@ export default function App() {
 
             {activeTab === 'penjualan' && (
               <section aria-labelledby="heading-penjualan" className="grid gap-6 md:grid-cols-2">
-                <div className="rounded-xl border border-stone-300 bg-white p-5">
-                  <h2 id="heading-penjualan" className="text-lg font-bold">
-                    Catat Pesanan
-                  </h2>
+                <div className="space-y-6">
+                  <div className="rounded-xl border border-stone-300 bg-white p-5">
+                    <h2 id="heading-penjualan" className="text-lg font-bold">
+                      Catat Produksi &amp; Penjualan
+                    </h2>
 
-                  {produkList.length === 0 ? (
-                    <p className="mt-4 text-sm text-muted">
-                      Belum ada menu. Tambahkan di tab Menu &amp; Resep.
-                    </p>
-                  ) : (
-                    <form onSubmit={handleRecordSale} className="mt-4 space-y-4">
-                      <div>
-                        <label
-                          htmlFor="select-produk"
-                          className="block text-sm font-medium"
-                        >
-                          Varian Minuman
-                        </label>
-                        <select
-                          id="select-produk"
-                          value={selectedProdukId}
-                          onChange={(e) => setSelectedProdukId(e.target.value)}
-                          className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
-                        >
-                          {produkList.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.nama} ({formatRupiah(p.harga)})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                    {produkList.length === 0 ? (
+                      <p className="mt-4 text-sm text-stone-700">
+                        Belum ada menu. Tambahkan di tab Menu &amp; Resep.
+                      </p>
+                    ) : (
+                      <form onSubmit={handleRecordSale} className="mt-4 space-y-4">
+                        <div>
+                          <label
+                            htmlFor="select-produk"
+                            className="block text-sm font-medium"
+                          >
+                            Varian Minuman
+                          </label>
+                          <select
+                            id="select-produk"
+                            value={selectedProdukId}
+                            onChange={(e) => setSelectedProdukId(e.target.value)}
+                            className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
+                          >
+                            {produkList.map((p) => {
+                              const kap = metrics.kapasitasMenu.find((k) => k.id === p.id);
+                              const sisaLabel =
+                                kap && kap.maxCup !== null ? ` - Sisa ${kap.maxCup} cup` : '';
+                              return (
+                                <option key={p.id} value={p.id}>
+                                  {p.nama} ({formatRupiah(p.harga)}
+                                  {sisaLabel})
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </div>
 
-                      <div>
-                        <label htmlFor="input-qty" className="block text-sm font-medium">
-                          Jumlah Cup
-                        </label>
-                        <input
-                          id="input-qty"
-                          type="number"
-                          min="1"
-                          required
-                          value={qtyJual}
-                          onChange={(e) => setQtyJual(e.target.value)}
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
-                        />
-                      </div>
+                        <div>
+                          <label htmlFor="input-qty" className="block text-sm font-medium">
+                            Jumlah Cup
+                          </label>
+                          <input
+                            id="input-qty"
+                            type="number"
+                            min="1"
+                            required
+                            value={qtyJual}
+                            onChange={(e) => setQtyJual(e.target.value)}
+                            className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
+                          />
+                        </div>
 
-                      <div>
-                        <label
-                          htmlFor="select-bayar"
-                          className="block text-sm font-medium"
-                        >
-                          Metode Pembayaran
-                        </label>
-                        <select
-                          id="select-bayar"
-                          value={metodeBayar}
-                          onChange={(e) => setMetodeBayar(e.target.value)}
-                          className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
-                        >
-                          <option value="Tunai">Tunai</option>
-                          <option value="QRIS">QRIS</option>
-                        </select>
-                      </div>
+                        <div>
+                          <label
+                            htmlFor="select-bayar"
+                            className="block text-sm font-medium"
+                          >
+                            Metode Pembayaran
+                          </label>
+                          <select
+                            id="select-bayar"
+                            value={metodeBayar}
+                            onChange={(e) => setMetodeBayar(e.target.value)}
+                            className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
+                          >
+                            <option value="Tunai">Tunai</option>
+                            <option value="QRIS">QRIS</option>
+                          </select>
+                        </div>
 
-                      <button
-                        type="submit"
-                        disabled={submittingSale}
-                        className="min-h-[44px] w-full cursor-pointer rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {submittingSale ? 'Memproses...' : 'Simpan Transaksi'}
-                      </button>
-                    </form>
-                  )}
+                        <button
+                          type="submit"
+                          disabled={submittingSale}
+                          className="min-h-[44px] w-full cursor-pointer rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {submittingSale ? 'Memproses...' : 'Simpan Transaksi'}
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 </div>
 
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h3 className="text-lg font-bold">Riwayat Penjualan</h3>
                   {transaksiList.length === 0 ? (
-                    <p className="mt-3 text-sm text-muted">Belum ada data penjualan.</p>
+                    <p className="mt-3 text-sm text-stone-700">Belum ada data penjualan.</p>
                   ) : (
                     <ul className="mt-3 divide-y divide-stone-200">
                       {transaksiList.map((t) => (
@@ -1468,7 +1653,7 @@ export default function App() {
                             </span>
                             <span>{formatRupiah(t.total_harga)}</span>
                           </div>
-                          <div className="mt-0.5 flex justify-between text-xs text-muted">
+                          <div className="mt-0.5 flex justify-between text-xs text-stone-700">
                             <span>{t.metode_bayar}</span>
                             <span>{formatTanggal(t.created_at)}</span>
                           </div>
@@ -1485,7 +1670,7 @@ export default function App() {
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="rounded-xl border border-stone-300 bg-white p-5">
                     <h2 id="heading-stok" className="text-lg font-bold">
-                      Catat Stok Masuk
+                      Catat Pengadaan Bahan &amp; Kemasan
                     </h2>
                     <form onSubmit={handleAddStock} className="mt-4 space-y-4">
                       <div>
@@ -1560,16 +1745,17 @@ export default function App() {
                   </div>
 
                   <div className="rounded-xl border border-stone-300 bg-white p-5">
-                    <h3 className="text-lg font-bold">Tambah Item Bahan Baru</h3>
+                    <h3 className="text-lg font-bold">Tambah Item Bahan / Kemasan Baru</h3>
                     <form onSubmit={handleCreateBahan} className="mt-4 space-y-3">
                       <div>
                         <label htmlFor="baru-nama" className="block text-sm font-medium">
-                          Nama Bahan
+                          Nama Bahan atau Kemasan
                         </label>
                         <input
                           id="baru-nama"
                           type="text"
                           required
+                          placeholder="Contoh: Jeruk Lokal / Gelas Plastik 16oz"
                           value={newBahanNama}
                           onChange={(e) => setNewBahanNama(e.target.value)}
                           className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
@@ -1586,8 +1772,8 @@ export default function App() {
                             onChange={(e) => setNewBahanSatuan(e.target.value)}
                             className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                           >
-                            <option value="gram">gram</option>
-                            <option value="pcs">pcs</option>
+                            <option value="gram">gram (Bahan Basah)</option>
+                            <option value="pcs">pcs (Kemasan)</option>
                           </select>
                         </div>
                         <div>
@@ -1637,19 +1823,20 @@ export default function App() {
                         type="submit"
                         className="min-h-[44px] w-full cursor-pointer rounded-lg border border-leaf bg-white px-4 py-2.5 text-sm font-semibold text-leaf hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       >
-                        Simpan Bahan Baru
+                        Simpan Item Baru
                       </button>
                     </form>
                   </div>
                 </div>
 
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
-                  <h3 className="text-lg font-bold">Persediaan Saat Ini</h3>
+                  <h3 className="text-lg font-bold">Persediaan Bahan &amp; Kemasan Saat Ini</h3>
                   <div className="mt-3 overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                      <thead className="border-b border-stone-200 text-muted">
+                      <thead className="border-b border-stone-200 text-stone-700">
                         <tr>
-                          <th className="py-2 pr-3">Nama Bahan</th>
+                          <th className="py-2 pr-3">Nama Item</th>
+                          <th className="py-2 pr-3">Kategori</th>
                           <th className="py-2 pr-3">Stok</th>
                           <th className="py-2 pr-3">Batas Min</th>
                           <th className="py-2 pr-3">Rasio Limbah</th>
@@ -1662,6 +1849,9 @@ export default function App() {
                           return (
                             <tr key={b.id}>
                               <td className="py-2.5 pr-3 font-medium">{b.nama}</td>
+                              <td className="py-2.5 pr-3 text-stone-700">
+                                {b.satuan === 'pcs' ? 'Kemasan' : 'Bahan Baku'}
+                              </td>
                               <td className="py-2.5 pr-3">
                                 {b.stok_saat_ini} {b.satuan}
                               </td>
@@ -1706,6 +1896,7 @@ export default function App() {
                           id="menu-nama"
                           type="text"
                           required
+                          placeholder="Contoh: Es Jeruk Peras / Sunkist Segar"
                           value={newMenuNama}
                           onChange={(e) => setNewMenuNama(e.target.value)}
                           className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
@@ -1720,6 +1911,7 @@ export default function App() {
                           type="number"
                           min="500"
                           required
+                          placeholder="8000"
                           value={newMenuHarga}
                           onChange={(e) => setNewMenuHarga(e.target.value)}
                           className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
@@ -1784,12 +1976,12 @@ export default function App() {
                 </div>
 
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
-                  <h3 className="text-lg font-bold">Takaran Resep per Cup</h3>
+                  <h3 className="text-lg font-bold">Takaran Resep &amp; Kemasan per Cup</h3>
 
                   <form onSubmit={handleUpsertResep} className="mt-4 space-y-3">
                     <div>
                       <label htmlFor="resep-bahan" className="block text-sm font-medium">
-                        Bahan
+                        Bahan Baku / Kemasan
                       </label>
                       <select
                         id="resep-bahan"
@@ -1830,7 +2022,7 @@ export default function App() {
                   <div className="mt-6">
                     <h4 className="text-sm font-bold text-ink">Komposisi Menu Terpilih:</h4>
                     {activeEditResep.length === 0 ? (
-                      <p className="mt-2 text-sm text-muted">Belum ada komposisi bahan.</p>
+                      <p className="mt-2 text-sm text-stone-700">Belum ada komposisi bahan.</p>
                     ) : (
                       <ul className="mt-2 divide-y divide-stone-200">
                         {activeEditResep.map((r) => {
@@ -1864,6 +2056,50 @@ export default function App() {
             {activeTab === 'limbah' && (
               <section aria-labelledby="heading-limbah" className="space-y-6">
                 <WasteInteractiveChart limbahList={limbahList} />
+
+                {/* Tindak Lanjut Batch Harian */}
+                {metrics.belumDiprosesCount > 0 && (
+                  <div className="rounded-xl border border-amber-400 bg-amber-50 p-5 text-amber-950">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div>
+                        <h3 className="text-base font-bold">
+                          Tindak Lanjut Batch Harian ({metrics.belumDiprosesCount} catatan menunggu,{' '}
+                          {metrics.belumDiprosesKg} kg)
+                        </h3>
+                        <p className="mt-0.5 text-xs text-amber-900">
+                          Ubah seluruh sisa ampas &amp; kulit jeruk yang belum diproses sekaligus.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <label htmlFor="batch-status-select" className="sr-only">
+                          Pilih status tindak lanjut batch
+                        </label>
+                        <select
+                          id="batch-status-select"
+                          value={batchTindakLanjut}
+                          onChange={(e) => setBatchTindakLanjut(e.target.value)}
+                          className="min-h-[44px] cursor-pointer rounded-lg border border-amber-500 bg-white px-3 py-2 text-sm font-medium text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
+                        >
+                          {TINDAK_LANJUT_OPTIONS.filter((o) => o !== 'Belum Diproses').map(
+                            (opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            )
+                          )}
+                        </select>
+                        <button
+                          type="button"
+                          disabled={processingBatch}
+                          onClick={handleBatchProcessLimbah}
+                          className="min-h-[44px] cursor-pointer rounded-lg bg-leaf px-4 py-2 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {processingBatch ? 'Memproses...' : 'Proses Semua'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h2 id="heading-limbah" className="text-lg font-bold">
@@ -1933,11 +2169,11 @@ export default function App() {
                     Log Limbah Organik (SDG 12.3 &amp; 12.5)
                   </h3>
                   {limbahList.length === 0 ? (
-                    <p className="mt-3 text-sm text-muted">Belum ada catatan limbah.</p>
+                    <p className="mt-3 text-sm text-stone-700">Belum ada catatan limbah.</p>
                   ) : (
                     <div className="mt-3 overflow-x-auto">
                       <table className="w-full text-left text-sm">
-                        <thead className="border-b border-stone-200 text-muted">
+                        <thead className="border-b border-stone-200 text-stone-700">
                           <tr>
                             <th className="py-2 pr-3">Waktu</th>
                             <th className="py-2 pr-3">Sumber</th>
@@ -1948,7 +2184,7 @@ export default function App() {
                         <tbody className="divide-y divide-stone-200">
                           {limbahList.map((item) => (
                             <tr key={item.id}>
-                              <td className="py-2.5 pr-3 text-muted">
+                              <td className="py-2.5 pr-3 text-stone-700">
                                 {formatTanggal(item.created_at)}
                               </td>
                               <td className="py-2.5 pr-3 font-medium">{item.sumber}</td>
