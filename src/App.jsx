@@ -24,8 +24,283 @@ const TINDAK_LANJUT_OPTIONS = [
   'Dibuang',
 ];
 
+const WASTE_CATEGORY_META = [
+  {
+    key: 'Pupuk Organik',
+    label: 'Pupuk Organik',
+    group: 'Terselamatkan',
+    color: '#15803d',
+    badgeClass: 'bg-emerald-100 text-emerald-900',
+  },
+  {
+    key: 'Diserahkan ke Panitia Bazar',
+    label: 'Diserahkan ke Panitia Bazar',
+    group: 'Terselamatkan',
+    color: '#0d9488',
+    badgeClass: 'bg-teal-100 text-teal-900',
+  },
+  {
+    key: 'Diserahkan ke Karyawan',
+    label: 'Diserahkan ke Karyawan',
+    group: 'Terselamatkan',
+    color: '#65a30d',
+    badgeClass: 'bg-lime-100 text-lime-900',
+  },
+  {
+    key: 'Belum Diproses',
+    label: 'Belum Diproses',
+    group: 'Menunggu',
+    color: '#d97706',
+    badgeClass: 'bg-amber-100 text-amber-900',
+  },
+  {
+    key: 'Dibuang',
+    label: 'Dibuang ke TPA',
+    group: 'Residu',
+    color: '#dc2626',
+    badgeClass: 'bg-red-100 text-red-900',
+  },
+];
+
+function WasteInteractiveChart({ limbahList }) {
+  const [selectedKey, setSelectedKey] = useState(null);
+
+  const summary = useMemo(() => {
+    const totalGram = limbahList.reduce((acc, item) => acc + Number(item.berat_gram || 0), 0);
+
+    const breakdown = WASTE_CATEGORY_META.map((cat) => {
+      const gram = limbahList
+        .filter((item) => item.tindak_lanjut === cat.key)
+        .reduce((acc, item) => acc + Number(item.berat_gram || 0), 0);
+      const pct = totalGram > 0 ? Math.round((gram / totalGram) * 100) : 0;
+      return { ...cat, gram, kg: (gram / 1000).toFixed(2), pct };
+    });
+
+    const savedGram = limbahList
+      .filter((l) => l.tindak_lanjut !== 'Dibuang' && l.tindak_lanjut !== 'Belum Diproses')
+      .reduce((acc, l) => acc + Number(l.berat_gram || 0), 0);
+
+    const savedPct = totalGram > 0 ? Math.round((savedGram / totalGram) * 100) : 0;
+
+    return {
+      totalGram,
+      totalKg: (totalGram / 1000).toFixed(2),
+      savedKg: (savedGram / 1000).toFixed(2),
+      savedPct,
+      breakdown,
+    };
+  }, [limbahList]);
+
+  const activeCategory = summary.breakdown.find((b) => b.key === selectedKey) || null;
+
+  const radius = 64;
+  const circumference = 2 * Math.PI * radius;
+  let cumulativeOffset = 0;
+
+  return (
+    <div className="rounded-xl border border-stone-300 bg-white p-5 transition-shadow duration-200 hover:shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h3 className="text-base font-bold text-ink">
+            Chart Interaktif Pengolahan Limbah Organik (SDG 12.3 &amp; 12.5)
+          </h3>
+          <p className="mt-0.5 text-xs text-muted">
+            Klik atau arahkan kursor pada segmen grafik maupun batang kategori untuk melihat rincian berat limbah.
+          </p>
+        </div>
+        {selectedKey && (
+          <button
+            type="button"
+            onClick={() => setSelectedKey(null)}
+            className="rounded-md border border-stone-300 bg-paper px-2.5 py-1 text-xs font-medium text-ink hover:bg-stone-200"
+          >
+            Reset Pilihan
+          </button>
+        )}
+      </div>
+
+      {summary.totalGram === 0 ? (
+        <div className="mt-4 rounded-lg border border-dashed border-stone-300 bg-paper p-6 text-center text-sm text-muted">
+          Belum ada data limbah organik yang tercatat. Catat transaksi penjualan atau limbah manual untuk melihat visualisasi SDG 12.
+        </div>
+      ) : (
+        <div className="mt-5 grid grid-cols-1 items-center gap-6 md:grid-cols-12">
+          {/* Donut Chart SVG */}
+          <div className="flex flex-col items-center justify-center md:col-span-5">
+            <div className="relative h-48 w-48">
+              <svg viewBox="0 0 160 160" className="h-full w-full -rotate-90 transform">
+                <circle
+                  cx="80"
+                  cy="80"
+                  r={radius}
+                  fill="transparent"
+                  stroke="#e7e5e4"
+                  strokeWidth="22"
+                />
+                {summary.breakdown.map((seg) => {
+                  if (seg.gram <= 0) return null;
+                  const segmentLength = (seg.gram / summary.totalGram) * circumference;
+                  const dashArray = `${segmentLength} ${circumference}`;
+                  const dashOffset = -cumulativeOffset;
+                  cumulativeOffset += segmentLength;
+
+                  const isSelected = selectedKey === seg.key;
+                  const isDimmed = selectedKey && !isSelected;
+
+                  return (
+                    <circle
+                      key={seg.key}
+                      cx="80"
+                      cy="80"
+                      r={radius}
+                      fill="transparent"
+                      stroke={seg.color}
+                      strokeWidth={isSelected ? '26' : '22'}
+                      strokeDasharray={dashArray}
+                      strokeDashoffset={dashOffset}
+                      className="cursor-pointer transition-all duration-300"
+                      style={{ opacity: isDimmed ? 0.35 : 1 }}
+                      onMouseEnter={() => setSelectedKey(seg.key)}
+                      onClick={() =>
+                        setSelectedKey((prev) => (prev === seg.key ? null : seg.key))
+                      }
+                    />
+                  );
+                })}
+              </svg>
+              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+                  {activeCategory ? activeCategory.group : 'Terselamatkan'}
+                </span>
+                <span className="text-2xl font-bold text-ink">
+                  {activeCategory ? `${activeCategory.pct}%` : `${summary.savedPct}%`}
+                </span>
+                <span className="line-clamp-1 text-[11px] font-medium text-muted">
+                  {activeCategory ? `${activeCategory.kg} kg` : `${summary.savedKg} / ${summary.totalKg} kg`}
+                </span>
+              </div>
+            </div>
+            <p className="mt-2 text-center text-xs font-medium text-muted">
+              Total Limbah Tercatat: <strong className="text-ink">{summary.totalKg} kg</strong>
+            </p>
+          </div>
+
+          {/* Interactive Breakdown Bars */}
+          <div className="space-y-3 md:col-span-7">
+            {summary.breakdown.map((item) => {
+              const isSelected = selectedKey === item.key;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onMouseEnter={() => setSelectedKey(item.key)}
+                  onClick={() =>
+                    setSelectedKey((prev) => (prev === item.key ? null : item.key))
+                  }
+                  className={`block w-full rounded-lg border p-3 text-left transition-all duration-200 ${
+                    isSelected
+                      ? 'border-stone-500 bg-stone-50 shadow-sm'
+                      : 'border-stone-200 bg-paper/60 hover:border-stone-300 hover:bg-stone-50'
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="inline-block h-3 w-3 rounded-full"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="font-semibold text-ink">{item.label}</span>
+                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${item.badgeClass}`}>
+                        {item.group}
+                      </span>
+                    </div>
+                    <span className="font-bold text-ink">
+                      {item.kg} kg ({item.pct}%)
+                    </span>
+                  </div>
+                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-stone-200">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${item.pct}%`,
+                        backgroundColor: item.color,
+                      }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ImpactComparisonPanel({ rasioSdg12, totalCupTerjual }) {
+  return (
+    <div className="rounded-xl border border-stone-300 bg-white p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h3 className="text-base font-bold text-ink">
+            Evaluasi Dampak: Sistem Manual Lama vs. SIPROMIN
+          </h3>
+          <p className="mt-0.5 text-xs text-muted">
+            Perbandingan efektivitas operasional dan kontribusi keberlanjutan SDG 12 pada UMKM Ngejeruk.
+          </p>
+        </div>
+        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-leaf">
+          Target SDG 12.3 &amp; 12.5
+        </span>
+      </div>
+
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-stone-200 text-xs uppercase text-muted">
+            <tr>
+              <th className="py-2.5 pr-4">Indikator Evaluasi</th>
+              <th className="py-2.5 pr-4">Sistem Lama (Manual)</th>
+              <th className="py-2.5">SIPROMIN (Sistem Usulan)</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-stone-200">
+            <tr>
+              <td className="py-3 pr-4 font-semibold text-ink">Pencatatan &amp; Potong Stok</td>
+              <td className="py-3 pr-4 text-muted">
+                Manual di buku catatan; sering selisih takaran dan telat restock.
+              </td>
+              <td className="py-3 font-medium text-leaf">
+                Otomatis real-time berbasis resep ({totalCupTerjual} cup terverifikasi).
+              </td>
+            </tr>
+            <tr>
+              <td className="py-3 pr-4 font-semibold text-ink">Pengelolaan Limbah Organik</td>
+              <td className="py-3 pr-4 text-muted">
+                0% terdata; kulit jeruk &amp; ampas langsung dibuang ke TPA.
+              </td>
+              <td className="py-3 font-medium text-leaf">
+                Terukur otomatis; saat ini {rasioSdg12}% limbah termanfaatkan kembali.
+              </td>
+            </tr>
+            <tr>
+              <td className="py-3 pr-4 font-semibold text-ink">Transparansi &amp; Dokumentasi</td>
+              <td className="py-3 pr-4 text-muted">
+                Rekap laporan lambat dan tidak dapat dipantau pihak luar.
+              </td>
+              <td className="py-3 font-medium text-leaf">
+                Dashboard real-time dengan mode audit Guest &amp; cetak laporan instan.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [session, setSession] = useState(null);
+  const [isGuest, setIsGuest] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -97,16 +372,47 @@ export default function App() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
+      if (nextSession) {
+        setIsGuest(false);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const loadAllData = async () => {
-    if (!supabase || !session) return;
+    if (!supabase || (!session && !isGuest)) return;
     setLoadingData(true);
     setErrorMsg('');
     try {
+      if (isGuest && !session) {
+        // Mode Guest: hanya membaca data limbah & kuantitas produksi (tanpa data finansial/stok internal)
+        const [resLimbah, resTransaksi] = await Promise.all([
+          supabase
+            .from('limbah')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(100),
+          supabase
+            .from('transaksi')
+            .select('id, nama_produk, qty, created_at')
+            .order('created_at', { ascending: false })
+            .limit(100),
+        ]);
+
+        if (resLimbah.error) throw resLimbah.error;
+        if (resTransaksi.error) throw resTransaksi.error;
+
+        setLimbahList(resLimbah.data || []);
+        setTransaksiList(resTransaksi.data || []);
+        setBahanBaku([]);
+        setProdukList([]);
+        setResepList([]);
+        setPengadaanList([]);
+        return;
+      }
+
+      // Mode Admin Full Access
       const [resBahan, resProduk, resResep, resTransaksi, resLimbah, resPengadaan] =
         await Promise.all([
           supabase.from('bahan_baku').select('*').order('nama', { ascending: true }),
@@ -156,17 +462,23 @@ export default function App() {
         setResepBahanId(resBahan.data[0].id);
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Gagal memuat data dari Supabase.');
+      if (isGuest && !session) {
+        setErrorMsg(
+          'Akses baca publik belum diaktifkan di Supabase. Jalankan perintah GRANT SELECT untuk role anon di SQL Editor.'
+        );
+      } else {
+        setErrorMsg(err.message || 'Gagal memuat data dari Supabase.');
+      }
     } finally {
       setLoadingData(false);
     }
   };
 
   useEffect(() => {
-    if (session) {
+    if (session || isGuest) {
       loadAllData();
     }
-  }, [session]);
+  }, [session, isGuest]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -179,31 +491,75 @@ export default function App() {
     });
     if (error) {
       setAuthError('Login gagal: ' + error.message);
+    } else {
+      setIsGuest(false);
+      setActiveTab('dashboard');
     }
     setSigningIn(false);
   };
 
-  const handleLogout = async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+  const handleEnterGuest = () => {
+    setAuthError('');
+    setErrorMsg('');
+    setIsGuest(true);
+    setActiveTab('dashboard');
   };
 
-  // Ringkasan Dashboard
+  const handleLogout = async () => {
+    setIsGuest(false);
+    setErrorMsg('');
+    if (supabase && session) {
+      await supabase.auth.signOut();
+    }
+  };
+
+  // Ringkasan Dashboard & Status Kepatuhan SDG 12
   const metrics = useMemo(() => {
     const totalGramBahan = bahanBaku
       .filter((b) => b.satuan === 'gram')
       .reduce((acc, b) => acc + Number(b.stok_saat_ini), 0);
 
-    const totalCupTerjual = transaksiList.reduce((acc, t) => acc + Number(t.qty), 0);
-    const totalOmzet = transaksiList.reduce((acc, t) => acc + Number(t.total_harga), 0);
+    const totalCupTerjual = transaksiList.reduce((acc, t) => acc + Number(t.qty || 0), 0);
+    const totalOmzet = transaksiList.reduce((acc, t) => acc + Number(t.total_harga || 0), 0);
 
-    const totalLimbahGram = limbahList.reduce((acc, l) => acc + Number(l.berat_gram), 0);
+    const totalLimbahGram = limbahList.reduce((acc, l) => acc + Number(l.berat_gram || 0), 0);
     const dimanfaatkanGram = limbahList
       .filter((l) => l.tindak_lanjut !== 'Dibuang' && l.tindak_lanjut !== 'Belum Diproses')
-      .reduce((acc, l) => acc + Number(l.berat_gram), 0);
+      .reduce((acc, l) => acc + Number(l.berat_gram || 0), 0);
+    const belumDiprosesGram = limbahList
+      .filter((l) => l.tindak_lanjut === 'Belum Diproses')
+      .reduce((acc, l) => acc + Number(l.berat_gram || 0), 0);
 
     const rasioSdg12 =
       totalLimbahGram > 0 ? Math.round((dimanfaatkanGram / totalLimbahGram) * 100) : 0;
+
+    let statusSdg = {
+      label: 'Belum Ada Data Limbah',
+      desc: 'Belum terdapat catatan produksi limbah organik yang dievaluasi.',
+      colorClass: 'border-stone-300 bg-stone-100 text-stone-800',
+    };
+
+    if (totalLimbahGram > 0) {
+      if (rasioSdg12 >= 70) {
+        statusSdg = {
+          label: 'Sangat Baik • Memenuhi Target SDG 12',
+          desc: 'Mayoritas limbah organik berhasil didaur ulang dan dialihkan dari TPA.',
+          colorClass: 'border-emerald-300 bg-emerald-50 text-emerald-900',
+        };
+      } else if (rasioSdg12 >= 40) {
+        statusSdg = {
+          label: 'Cukup Baik • Dalam Tahap Optimalisasi',
+          desc: 'Sebagian limbah sudah dimanfaatkan, namun masih ada sisa yang perlu ditindaklanjuti.',
+          colorClass: 'border-amber-300 bg-amber-50 text-amber-900',
+        };
+      } else {
+        statusSdg = {
+          label: 'Perlu Tindak Lanjut Pengolahan Limbah',
+          desc: 'Pemanfaatan limbah organik masih di bawah 40%. Segera proses sisa kulit buah.',
+          colorClass: 'border-red-300 bg-red-50 text-red-900',
+        };
+      }
+    }
 
     const stokMenipis = bahanBaku.filter(
       (b) => Number(b.stok_saat_ini) <= Number(b.batas_minimum)
@@ -214,7 +570,10 @@ export default function App() {
       totalCupTerjual,
       totalOmzet,
       totalKgLimbah: (totalLimbahGram / 1000).toFixed(2),
+      dimanfaatkanKg: (dimanfaatkanGram / 1000).toFixed(2),
+      belumDiprosesKg: (belumDiprosesGram / 1000).toFixed(2),
       rasioSdg12,
+      statusSdg,
       stokMenipis,
     };
   }, [bahanBaku, transaksiList, limbahList]);
@@ -232,7 +591,6 @@ export default function App() {
       return;
     }
 
-    // Validasi kecukupan stok
     for (const item of resepMenu) {
       const bahan = bahanBaku.find((b) => b.id === item.bahan_id);
       const butuh = Number(item.takaran) * qty;
@@ -297,9 +655,7 @@ export default function App() {
 
       setQtyJual(1);
       await loadAllData();
-      showToast(
-        `Penjualan ${qty}x ${produk.nama} tersimpan. Stok terpotong otomatis.`
-      );
+      showToast(`Penjualan ${qty}x ${produk.nama} tersimpan. Stok terpotong otomatis.`);
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menyimpan transaksi.');
     } finally {
@@ -499,70 +855,302 @@ export default function App() {
     );
   }
 
-  if (!session) {
+  // HALAMAN PORTAL AKSES: ADMIN VS GUEST
+  if (!session && !isGuest) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-12">
-        <div className="rounded-2xl border border-stone-300 bg-white p-6 shadow-sm sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-wider text-leaf">
-            UMKM Ngejeruk Minuman Segar
+      <main className="mx-auto flex min-h-screen max-w-4xl flex-col justify-center px-4 py-12">
+        <div className="mb-6 text-center">
+          <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-leaf">
+            SIPROMIN • SDG 12 Responsible Production
+          </span>
+          <h1 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
+            Sistem Informasi Produksi &amp; Limbah Ngejeruk
+          </h1>
+          <p className="mx-auto mt-2 max-w-xl text-sm text-muted">
+            Pilih peran akses untuk mengelola operasional harian UMKM atau memantau capaian pengelolaan limbah organik berkelanjutan.
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-ink">Masuk Admin SIPROMIN</h1>
-          <p className="mt-2 text-sm text-muted">
-            Kelola stok bahan baku, pencatatan penjualan, dan monitoring limbah organik SDG 12.
-          </p>
+        </div>
 
-          {authError && (
-            <div
-              role="alert"
-              className="mt-4 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900"
-            >
-              {authError}
-            </div>
-          )}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* Kartu 1: Login Admin */}
+          <div className="rounded-2xl border border-stone-300 bg-white p-6 shadow-sm sm:p-7">
+            <span className="rounded bg-stone-100 px-2.5 py-1 text-xs font-semibold text-ink">
+              Akses Internal (Full Access)
+            </span>
+            <h2 className="mt-3 text-xl font-bold text-ink">Masuk sebagai Admin</h2>
+            <p className="mt-1 text-sm text-muted">
+              Input transaksi penjualan, kontrol stok bahan baku otomatis, atur resep, dan kelola tindak lanjut limbah.
+            </p>
 
-          <form onSubmit={handleLogin} className="mt-6 space-y-4">
+            {authError && (
+              <div
+                role="alert"
+                className="mt-4 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900"
+              >
+                {authError}
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="admin-email" className="block text-sm font-medium text-ink">
+                  Email Admin
+                </label>
+                <input
+                  id="admin-email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2 text-ink"
+                  placeholder="admin@ngejeruk.id"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="admin-pass" className="block text-sm font-medium text-ink">
+                  Kata Sandi
+                </label>
+                <input
+                  id="admin-pass"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2 text-ink"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={signingIn}
+                className="min-h-[44px] w-full rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-leafHover disabled:opacity-60"
+              >
+                {signingIn ? 'Memverifikasi...' : 'Masuk Dashboard Admin'}
+              </button>
+            </form>
+          </div>
+
+          {/* Kartu 2: Akses Guest / Auditor SDG 12 */}
+          <div className="flex flex-col justify-between rounded-2xl border border-emerald-300 bg-emerald-50/50 p-6 shadow-sm sm:p-7">
             <div>
-              <label htmlFor="admin-email" className="block text-sm font-medium text-ink">
-                Email Admin
-              </label>
-              <input
-                id="admin-email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2 text-ink"
-                placeholder="admin@ngejeruk.id"
-              />
-            </div>
+              <span className="rounded bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-leaf">
+                Transparansi Publik (Read-Only)
+              </span>
+              <h2 className="mt-3 text-xl font-bold text-ink">
+                Masuk sebagai Guest (Pantau SDG 12)
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                Tanpa kata sandi. Ditujukan bagi penguji, mitra, atau pelanggan untuk mengevaluasi sejauh mana UMKM Ngejeruk menerapkan pengelolaan limbah ramah lingkungan.
+              </p>
 
-            <div>
-              <label htmlFor="admin-pass" className="block text-sm font-medium text-ink">
-                Kata Sandi
-              </label>
-              <input
-                id="admin-pass"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2 text-ink"
-              />
+              <ul className="mt-5 space-y-2.5 text-sm text-ink">
+                <li className="flex items-start gap-2">
+                  <span className="font-bold text-leaf">✓</span>
+                  <span>Status kelayakan penerapan SDG 12 secara real-time</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold text-leaf">✓</span>
+                  <span>Chart interaktif proporsi limbah didaur ulang vs. residu</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold text-leaf">✓</span>
+                  <span>Evaluasi dampak perbandingan sistem lama vs. SIPROMIN</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="font-bold text-stone-400">•</span>
+                  <span className="text-muted">
+                    Data sensitif bisnis (omzet &amp; harga modal) tetap terlindungi
+                  </span>
+                </li>
+              </ul>
             </div>
 
             <button
-              type="submit"
-              disabled={signingIn}
-              className="min-h-[44px] w-full rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover disabled:opacity-60"
+              type="button"
+              onClick={handleEnterGuest}
+              className="mt-6 min-h-[44px] w-full rounded-lg border-2 border-leaf bg-white px-4 py-2.5 text-sm font-semibold text-leaf transition-colors hover:bg-leaf hover:text-white"
             >
-              {signingIn ? 'Memverifikasi...' : 'Masuk ke Dashboard'}
+              Buka Dashboard Pemantauan SDG 12
             </button>
-          </form>
+          </div>
         </div>
       </main>
     );
   }
 
+  // TAMPILAN KHUSUS MODE GUEST (READ-ONLY AUDITOR SDG 12)
+  if (isGuest && !session) {
+    return (
+      <div className="min-h-screen bg-paper text-ink">
+        <header className="border-b border-stone-300 bg-white">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-leaf">
+                  SIPROMIN • MODE GUEST (PUBLIC AUDIT)
+                </span>
+              </div>
+              <h1 className="text-lg font-bold text-ink">
+                Pemantauan Kinerja SDG 12 — UMKM Ngejeruk Minuman Segar
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="min-h-[40px] rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-ink hover:bg-stone-100"
+              >
+                Cetak / Simpan PDF
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="min-h-[40px] rounded-lg bg-leaf px-4 py-2 text-xs font-semibold text-white hover:bg-leafHover"
+              >
+                Kembali ke Portal Login
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-5xl space-y-6 px-4 py-6">
+          {errorMsg && (
+            <div
+              role="alert"
+              className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-900"
+            >
+              {errorMsg}
+            </div>
+          )}
+
+          {loadingData ? (
+            <p className="py-12 text-center text-sm text-muted">
+              Memuat indikator keberlanjutan SDG 12...
+            </p>
+          ) : (
+            <>
+              {/* Banner Status Kelayakan Penerapan SDG 12 */}
+              <div className={`rounded-xl border p-5 ${metrics.statusSdg.colorClass}`}>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider opacity-80">
+                      Status Evaluasi Penerapan SDG 12
+                    </p>
+                    <h2 className="mt-1 text-xl font-bold">{metrics.statusSdg.label}</h2>
+                    <p className="mt-1 text-sm opacity-90">{metrics.statusSdg.desc}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={loadAllData}
+                    className="min-h-[40px] rounded-lg border border-current/25 bg-white/80 px-3 py-2 text-xs font-semibold hover:bg-white"
+                  >
+                    Segarkan Data
+                  </button>
+                </div>
+              </div>
+
+              {/* 4 Metrik Keberlanjutan Publik */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-xl border border-stone-300 bg-white p-5">
+                  <p className="text-xs font-semibold uppercase text-muted">
+                    Tingkat Pemanfaatan Limbah
+                  </p>
+                  <p className="mt-2 text-3xl font-bold text-leaf">{metrics.rasioSdg12}%</p>
+                  <p className="mt-1 text-xs text-muted">Target ideal UMKM hijau: &ge; 70%</p>
+                </div>
+                <div className="rounded-xl border border-stone-300 bg-white p-5">
+                  <p className="text-xs font-semibold uppercase text-muted">
+                    Limbah Terselamatkan
+                  </p>
+                  <p className="mt-2 text-3xl font-bold text-ink">{metrics.dimanfaatkanKg} kg</p>
+                  <p className="mt-1 text-xs text-muted">Dialihkan dari pembuangan TPA</p>
+                </div>
+                <div className="rounded-xl border border-stone-300 bg-white p-5">
+                  <p className="text-xs font-semibold uppercase text-muted">
+                    Menunggu Pengolahan
+                  </p>
+                  <p className="mt-2 text-3xl font-bold text-amber-700">
+                    {metrics.belumDiprosesKg} kg
+                  </p>
+                  <p className="mt-1 text-xs text-muted">Dalam antrean proses organik</p>
+                </div>
+                <div className="rounded-xl border border-stone-300 bg-white p-5">
+                  <p className="text-xs font-semibold uppercase text-muted">
+                    Total Produksi Terpantau
+                  </p>
+                  <p className="mt-2 text-3xl font-bold text-ink">
+                    {metrics.totalCupTerjual} cup
+                  </p>
+                  <p className="mt-1 text-xs text-muted">Tercatat otomatis oleh sistem</p>
+                </div>
+              </div>
+
+              {/* Chart Interaktif Limbah */}
+              <WasteInteractiveChart limbahList={limbahList} />
+
+              {/* Evaluasi Dampak Sistem Lama vs SIPROMIN */}
+              <ImpactComparisonPanel
+                rasioSdg12={metrics.rasioSdg12}
+                totalCupTerjual={metrics.totalCupTerjual}
+              />
+
+              {/* Log Transparansi Pengolahan Limbah (Read-Only) */}
+              <div className="rounded-xl border border-stone-300 bg-white p-5">
+                <h3 className="text-base font-bold text-ink">
+                  Log Transparansi Pengolahan Limbah Organik (Read-Only)
+                </h3>
+                <p className="mt-0.5 text-xs text-muted">
+                  Catatan aktual sumber limbah produksi dan status tindak lanjutnya.
+                </p>
+                {limbahList.length === 0 ? (
+                  <p className="mt-3 text-sm text-muted">Belum ada catatan limbah.</p>
+                ) : (
+                  <div className="mt-3 overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="border-b border-stone-200 text-muted">
+                        <tr>
+                          <th className="py-2 pr-3">Waktu</th>
+                          <th className="py-2 pr-3">Sumber Limbah</th>
+                          <th className="py-2 pr-3">Berat</th>
+                          <th className="py-2">Status Tindak Lanjut</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-stone-200">
+                        {limbahList.map((item) => {
+                          const meta =
+                            WASTE_CATEGORY_META.find((m) => m.key === item.tindak_lanjut) ||
+                            WASTE_CATEGORY_META[3];
+                          return (
+                            <tr key={item.id}>
+                              <td className="py-2.5 pr-3 text-muted">
+                                {formatTanggal(item.created_at)}
+                              </td>
+                              <td className="py-2.5 pr-3 font-medium">{item.sumber}</td>
+                              <td className="py-2.5 pr-3">{item.berat_gram} gram</td>
+                              <td className="py-2.5">
+                                <span
+                                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${meta.badgeClass}`}
+                                >
+                                  {item.tindak_lanjut}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  // TAMPILAN ADMIN (FULL ACCESS)
   const navItems = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'penjualan', label: 'Penjualan' },
@@ -579,19 +1167,28 @@ export default function App() {
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4">
           <div>
             <span className="text-xs font-semibold uppercase tracking-wider text-leaf">
-              SIPROMIN 4
+              SIPROMIN • MODE ADMIN (FULL ACCESS)
             </span>
             <h1 className="text-lg font-bold text-ink">
               Halo, Admin! Ngejeruk Minuman Segar
             </h1>
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="min-h-[44px] rounded-lg border border-stone-300 bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-stone-100"
-          >
-            Keluar
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="min-h-[44px] rounded-lg border border-stone-300 bg-white px-3.5 py-2 text-sm font-medium text-ink hover:bg-stone-100"
+            >
+              Cetak Laporan
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="min-h-[44px] rounded-lg border border-stone-300 bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-stone-100"
+            >
+              Keluar
+            </button>
+          </div>
         </div>
 
         <nav
@@ -659,27 +1256,27 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* 4 Metrik Utama sesuai Mockup SIPROMIN */}
+                {/* 4 Metrik Utama */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-xl border border-stone-300 bg-white p-5">
+                  <div className="rounded-xl border border-stone-300 bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5">
                     <p className="text-sm font-medium text-muted">Stok Bahan Basah</p>
                     <p className="mt-2 text-2xl font-bold text-ink">
                       {metrics.totalKgBahan} kg
                     </p>
                   </div>
-                  <div className="rounded-xl border border-stone-300 bg-white p-5">
+                  <div className="rounded-xl border border-stone-300 bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5">
                     <p className="text-sm font-medium text-muted">Produk Terjual</p>
                     <p className="mt-2 text-2xl font-bold text-ink">
                       {metrics.totalCupTerjual} cup
                     </p>
                   </div>
-                  <div className="rounded-xl border border-stone-300 bg-white p-5">
+                  <div className="rounded-xl border border-stone-300 bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5">
                     <p className="text-sm font-medium text-muted">Total Omzet</p>
                     <p className="mt-2 text-2xl font-bold text-leaf">
                       {formatRupiah(metrics.totalOmzet)}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-stone-300 bg-white p-5">
+                  <div className="rounded-xl border border-stone-300 bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5">
                     <p className="text-sm font-medium text-muted">Limbah Organik</p>
                     <p className="mt-2 text-2xl font-bold text-ink">
                       {metrics.totalKgLimbah} kg
@@ -689,6 +1286,15 @@ export default function App() {
                     </p>
                   </div>
                 </div>
+
+                {/* Chart Interaktif Pengolahan Limbah SDG 12 */}
+                <WasteInteractiveChart limbahList={limbahList} />
+
+                {/* Evaluasi Dampak Sistem Lama vs SIPROMIN */}
+                <ImpactComparisonPanel
+                  rasioSdg12={metrics.rasioSdg12}
+                  totalCupTerjual={metrics.totalCupTerjual}
+                />
 
                 {/* Peringatan Stok Menipis */}
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
@@ -1255,6 +1861,9 @@ export default function App() {
 
             {activeTab === 'limbah' && (
               <section aria-labelledby="heading-limbah" className="space-y-6">
+                {/* Chart Interaktif di Tab Limbah juga agar langsung terlihat saat tindak lanjut diubah */}
+                <WasteInteractiveChart limbahList={limbahList} />
+
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h2 id="heading-limbah" className="text-lg font-bold">
                     Catat Sisa Buah / Limbah Organik Tambahan
