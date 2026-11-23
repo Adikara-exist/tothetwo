@@ -30,37 +30,74 @@ const WASTE_CATEGORY_META = [
     label: 'Pupuk Organik',
     group: 'Terselamatkan',
     color: '#15803d',
-    badgeClass: 'bg-emerald-100 text-emerald-900',
+    badgeClass: 'bg-emerald-100 text-emerald-950',
   },
   {
     key: 'Diserahkan ke Panitia Bazar',
     label: 'Diserahkan ke Panitia Bazar',
     group: 'Terselamatkan',
-    color: '#0d9488',
-    badgeClass: 'bg-teal-100 text-teal-900',
+    color: '#0f766e',
+    badgeClass: 'bg-teal-100 text-teal-950',
   },
   {
     key: 'Diserahkan ke Karyawan',
     label: 'Diserahkan ke Karyawan',
     group: 'Terselamatkan',
-    color: '#65a30d',
-    badgeClass: 'bg-lime-100 text-lime-900',
+    color: '#4d7c0f',
+    badgeClass: 'bg-lime-100 text-lime-950',
   },
   {
     key: 'Belum Diproses',
     label: 'Belum Diproses',
     group: 'Menunggu',
-    color: '#d97706',
-    badgeClass: 'bg-amber-100 text-amber-900',
+    color: '#b45309',
+    badgeClass: 'bg-amber-100 text-amber-950',
   },
   {
     key: 'Dibuang',
     label: 'Dibuang ke TPA',
     group: 'Residu',
-    color: '#dc2626',
-    badgeClass: 'bg-red-100 text-red-900',
+    color: '#b91c1c',
+    badgeClass: 'bg-red-100 text-red-950',
   },
 ];
+
+function AdminLogo() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-20 w-20 items-center justify-center rounded-full bg-leaf text-white ring-4 ring-emerald-100"
+    >
+      <svg viewBox="0 0 48 48" className="h-11 w-11" fill="none">
+        <circle cx="24" cy="26" r="14" stroke="currentColor" strokeWidth="2.5" />
+        <path
+          d="M24 12V40M10 26H38M14.1 16.1L33.9 35.9M33.9 16.1L14.1 35.9"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M24 11C24 6.5 29.5 4.5 33.5 6.5C32.5 10.5 28.5 12 24 11Z"
+          fill="currentColor"
+        />
+      </svg>
+    </div>
+  );
+}
+
+function GuestAvatar() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-20 w-20 items-end justify-center overflow-hidden rounded-full bg-stone-300 text-stone-500 ring-4 ring-stone-200"
+    >
+      <svg viewBox="0 0 48 48" className="h-16 w-16" fill="currentColor">
+        <circle cx="24" cy="17" r="8.5" />
+        <path d="M9 44c0-8.3 6.7-14 15-14s15 5.7 15 14" />
+      </svg>
+    </div>
+  );
+}
 
 function WasteInteractiveChart({ limbahList }) {
   const [selectedKey, setSelectedKey] = useState(null);
@@ -98,36 +135,35 @@ function WasteInteractiveChart({ limbahList }) {
   let cumulativeOffset = 0;
 
   return (
-    <div className="rounded-xl border border-stone-300 bg-white p-5 transition-shadow duration-200 hover:shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h3 className="text-base font-bold text-ink">
-            Chart Interaktif Pengolahan Limbah Organik (SDG 12.3 &amp; 12.5)
-          </h3>
-          <p className="mt-0.5 text-xs text-muted">
-            Klik atau arahkan kursor pada segmen grafik maupun batang kategori untuk melihat rincian berat limbah.
-          </p>
-        </div>
+    <div className="rounded-xl border border-stone-300 bg-white p-5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-base font-bold text-ink">
+          Proporsi Pengolahan Limbah (SDG 12.3 &amp; 12.5)
+        </h3>
         {selectedKey && (
           <button
             type="button"
             onClick={() => setSelectedKey(null)}
-            className="rounded-md border border-stone-300 bg-paper px-2.5 py-1 text-xs font-medium text-ink hover:bg-stone-200"
+            className="min-h-[36px] cursor-pointer rounded-md border border-stone-300 bg-paper px-3 py-1 text-xs font-semibold text-ink hover:bg-stone-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
           >
-            Reset Pilihan
+            Tampilkan Semua
           </button>
         )}
       </div>
 
       {summary.totalGram === 0 ? (
-        <div className="mt-4 rounded-lg border border-dashed border-stone-300 bg-paper p-6 text-center text-sm text-muted">
-          Belum ada data limbah organik yang tercatat. Catat transaksi penjualan atau limbah manual untuk melihat visualisasi SDG 12.
-        </div>
+        <p className="mt-4 rounded-lg border border-dashed border-stone-300 bg-paper p-6 text-center text-sm text-muted">
+          Belum ada catatan limbah organik.
+        </p>
       ) : (
         <div className="mt-5 grid grid-cols-1 items-center gap-6 md:grid-cols-12">
           <div className="flex flex-col items-center justify-center md:col-span-5">
             <div className="relative h-48 w-48">
-              <svg viewBox="0 0 160 160" className="h-full w-full -rotate-90 transform">
+              <svg
+                viewBox="0 0 160 160"
+                aria-label="Grafik proporsi pengolahan limbah organik"
+                className="h-full w-full -rotate-90 transform"
+              >
                 <circle
                   cx="80"
                   cy="80"
@@ -157,7 +193,7 @@ function WasteInteractiveChart({ limbahList }) {
                       strokeWidth={isSelected ? '26' : '22'}
                       strokeDasharray={dashArray}
                       strokeDashoffset={dashOffset}
-                      className="cursor-pointer transition-all duration-300"
+                      className="cursor-pointer motion-safe:transition-all motion-safe:duration-300"
                       style={{ opacity: isDimmed ? 0.35 : 1 }}
                       onMouseEnter={() => setSelectedKey(seg.key)}
                       onClick={() =>
@@ -168,47 +204,53 @@ function WasteInteractiveChart({ limbahList }) {
                 })}
               </svg>
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+                <span className="text-xs font-semibold text-muted">
                   {activeCategory ? activeCategory.group : 'Terselamatkan'}
                 </span>
                 <span className="text-2xl font-bold text-ink">
                   {activeCategory ? `${activeCategory.pct}%` : `${summary.savedPct}%`}
                 </span>
-                <span className="line-clamp-1 text-[11px] font-medium text-muted">
-                  {activeCategory ? `${activeCategory.kg} kg` : `${summary.savedKg} / ${summary.totalKg} kg`}
+                <span className="text-xs font-medium text-muted">
+                  {activeCategory
+                    ? `${activeCategory.kg} kg`
+                    : `${summary.savedKg} / ${summary.totalKg} kg`}
                 </span>
               </div>
             </div>
             <p className="mt-2 text-center text-xs font-medium text-muted">
-              Total Limbah Tercatat: <strong className="text-ink">{summary.totalKg} kg</strong>
+              Total Limbah: <strong className="text-ink">{summary.totalKg} kg</strong>
             </p>
           </div>
 
-          <div className="space-y-3 md:col-span-7">
+          <div className="space-y-2.5 md:col-span-7">
             {summary.breakdown.map((item) => {
               const isSelected = selectedKey === item.key;
               return (
                 <button
                   key={item.key}
                   type="button"
+                  aria-pressed={isSelected}
                   onMouseEnter={() => setSelectedKey(item.key)}
                   onClick={() =>
                     setSelectedKey((prev) => (prev === item.key ? null : item.key))
                   }
-                  className={`block w-full rounded-lg border p-3 text-left transition-all duration-200 ${
+                  className={`block min-h-[44px] w-full cursor-pointer rounded-lg border p-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf motion-safe:transition-colors ${
                     isSelected
-                      ? 'border-stone-500 bg-stone-50 shadow-sm'
-                      : 'border-stone-200 bg-paper/60 hover:border-stone-300 hover:bg-stone-50'
+                      ? 'border-stone-600 bg-stone-100'
+                      : 'border-stone-300 bg-paper/60 hover:bg-stone-100'
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-2">
                       <span
+                        aria-hidden="true"
                         className="inline-block h-3 w-3 rounded-full"
                         style={{ backgroundColor: item.color }}
                       />
                       <span className="font-semibold text-ink">{item.label}</span>
-                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${item.badgeClass}`}>
+                      <span
+                        className={`rounded px-1.5 py-0.5 text-[11px] font-semibold ${item.badgeClass}`}
+                      >
                         {item.group}
                       </span>
                     </div>
@@ -218,7 +260,7 @@ function WasteInteractiveChart({ limbahList }) {
                   </div>
                   <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-stone-200">
                     <div
-                      className="h-full rounded-full transition-all duration-500"
+                      className="h-full rounded-full motion-safe:transition-all motion-safe:duration-500"
                       style={{
                         width: `${item.pct}%`,
                         backgroundColor: item.color,
@@ -238,55 +280,38 @@ function WasteInteractiveChart({ limbahList }) {
 function ImpactComparisonPanel({ rasioSdg12, totalCupTerjual }) {
   return (
     <div className="rounded-xl border border-stone-300 bg-white p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h3 className="text-base font-bold text-ink">
-            Evaluasi Dampak: Sistem Manual Lama vs. SIPROMIN
-          </h3>
-          <p className="mt-0.5 text-xs text-muted">
-            Perbandingan efektivitas operasional dan kontribusi keberlanjutan SDG 12 pada UMKM Ngejeruk.
-          </p>
-        </div>
-        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-leaf">
-          Target SDG 12.3 &amp; 12.5
-        </span>
-      </div>
-
-      <div className="mt-4 overflow-x-auto">
+      <h3 className="text-base font-bold text-ink">
+        Perbandingan Sistem Manual vs. SIPROMIN
+      </h3>
+      <div className="mt-3 overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-stone-200 text-xs uppercase text-muted">
+          <thead className="border-b border-stone-300 text-xs uppercase text-muted">
             <tr>
-              <th className="py-2.5 pr-4">Indikator Evaluasi</th>
-              <th className="py-2.5 pr-4">Sistem Lama (Manual)</th>
-              <th className="py-2.5">SIPROMIN (Sistem Usulan)</th>
+              <th className="py-2.5 pr-4">Aspek</th>
+              <th className="py-2.5 pr-4">Sistem Manual</th>
+              <th className="py-2.5">SIPROMIN</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-stone-200">
             <tr>
-              <td className="py-3 pr-4 font-semibold text-ink">Pencatatan &amp; Potong Stok</td>
-              <td className="py-3 pr-4 text-muted">
-                Manual di buku catatan; sering selisih takaran dan telat restock.
-              </td>
+              <td className="py-3 pr-4 font-semibold text-ink">Pemotongan Stok</td>
+              <td className="py-3 pr-4 text-muted">Catat manual, rawan selisih takaran</td>
               <td className="py-3 font-medium text-leaf">
-                Otomatis real-time berbasis resep ({totalCupTerjual} cup terverifikasi).
+                Otomatis berbasis resep ({totalCupTerjual} cup tercatat)
               </td>
             </tr>
             <tr>
-              <td className="py-3 pr-4 font-semibold text-ink">Pengelolaan Limbah Organik</td>
-              <td className="py-3 pr-4 text-muted">
-                0% terdata; kulit jeruk &amp; ampas langsung dibuang ke TPA.
-              </td>
+              <td className="py-3 pr-4 font-semibold text-ink">Limbah Organik</td>
+              <td className="py-3 pr-4 text-muted">0% terdata, langsung ke TPA</td>
               <td className="py-3 font-medium text-leaf">
-                Terukur otomatis; saat ini {rasioSdg12}% limbah termanfaatkan kembali.
+                Terukur otomatis ({rasioSdg12}% termanfaatkan)
               </td>
             </tr>
             <tr>
-              <td className="py-3 pr-4 font-semibold text-ink">Transparansi &amp; Dokumentasi</td>
-              <td className="py-3 pr-4 text-muted">
-                Rekap laporan lambat dan tidak dapat dipantau pihak luar.
-              </td>
+              <td className="py-3 pr-4 font-semibold text-ink">Akses Audit SDG 12</td>
+              <td className="py-3 pr-4 text-muted">Arsip kertas tertutup</td>
               <td className="py-3 font-medium text-leaf">
-                Dashboard real-time dengan mode audit Guest &amp; cetak laporan instan.
+                Portal Guest read-only &amp; cetak laporan
               </td>
             </tr>
           </tbody>
@@ -456,17 +481,19 @@ export default function App() {
 
         setSelectedProdukId((prev) => prev || resProduk.data?.[0]?.id || '');
         setEditMenuId((prev) => prev || resProduk.data?.[0]?.id || '');
-        setEditMenuHarga((prev) => prev || (resProduk.data?.[0] ? String(resProduk.data[0].harga) : ''));
+        setEditMenuHarga(
+          (prev) => prev || (resProduk.data?.[0] ? String(resProduk.data[0].harga) : '')
+        );
         setSelectedBahanId((prev) => prev || resBahan.data?.[0]?.id || '');
         setResepBahanId((prev) => prev || resBahan.data?.[0]?.id || '');
       } catch (err) {
         if (!silent) {
           if (isGuest && !session) {
             setErrorMsg(
-              'Akses baca publik belum diaktifkan di Supabase. Jalankan perintah GRANT SELECT untuk role anon di SQL Editor.'
+              'Akses baca publik belum aktif di Supabase. Jalankan GRANT SELECT untuk role anon di SQL Editor.'
             );
           } else {
-            setErrorMsg(err.message || 'Gagal memuat data dari Supabase.');
+            setErrorMsg(err.message || 'Gagal memuat data.');
           }
         }
       } finally {
@@ -479,7 +506,6 @@ export default function App() {
     [session, isGuest]
   );
 
-  // Sinkronisasi awal + Realtime WebSocket + Polling latar belakang setiap 5 detik
   useEffect(() => {
     if (!supabase || (!session && !isGuest)) return;
 
@@ -487,13 +513,9 @@ export default function App() {
 
     const channel = supabase
       .channel('sipromin-live-sync')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public' },
-        () => {
-          loadAllData(true);
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public' }, () => {
+        loadAllData(true);
+      })
       .subscribe();
 
     const pollInterval = setInterval(() => {
@@ -539,7 +561,6 @@ export default function App() {
     }
   };
 
-  // Ringkasan Dashboard & Status Kepatuhan SDG 12
   const metrics = useMemo(() => {
     const totalGramBahan = bahanBaku
       .filter((b) => b.satuan === 'gram')
@@ -561,28 +582,24 @@ export default function App() {
 
     let statusSdg = {
       label: 'Belum Ada Data Limbah',
-      desc: 'Belum terdapat catatan produksi limbah organik yang dievaluasi.',
-      colorClass: 'border-stone-300 bg-stone-100 text-stone-800',
+      colorClass: 'border-stone-300 bg-stone-100 text-stone-900',
     };
 
     if (totalLimbahGram > 0) {
       if (rasioSdg12 >= 70) {
         statusSdg = {
-          label: 'Sangat Baik • Memenuhi Target SDG 12',
-          desc: 'Mayoritas limbah organik berhasil didaur ulang dan dialihkan dari TPA.',
-          colorClass: 'border-emerald-300 bg-emerald-50 text-emerald-900',
+          label: 'Memenuhi Target SDG 12 (>= 70% Didaur Ulang)',
+          colorClass: 'border-emerald-400 bg-emerald-50 text-emerald-950',
         };
       } else if (rasioSdg12 >= 40) {
         statusSdg = {
-          label: 'Cukup Baik • Dalam Tahap Optimalisasi',
-          desc: 'Sebagian limbah sudah dimanfaatkan, namun masih ada sisa yang perlu ditindaklanjuti.',
-          colorClass: 'border-amber-300 bg-amber-50 text-amber-900',
+          label: 'Dalam Tahap Optimalisasi (40% - 69% Didaur Ulang)',
+          colorClass: 'border-amber-400 bg-amber-50 text-amber-950',
         };
       } else {
         statusSdg = {
-          label: 'Perlu Tindak Lanjut Pengolahan Limbah',
-          desc: 'Pemanfaatan limbah organik masih di bawah 40%. Segera proses sisa kulit buah.',
-          colorClass: 'border-red-300 bg-red-50 text-red-900',
+          label: 'Perlu Tindak Lanjut (< 40% Didaur Ulang)',
+          colorClass: 'border-red-400 bg-red-50 text-red-950',
         };
       }
     }
@@ -604,7 +621,6 @@ export default function App() {
     };
   }, [bahanBaku, transaksiList, limbahList]);
 
-  // Proses 2.0: Catat Penjualan + Potong Stok + Hitung Limbah Otomatis
   const handleRecordSale = async (e) => {
     e.preventDefault();
     const produk = produkList.find((p) => p.id === selectedProdukId);
@@ -613,7 +629,7 @@ export default function App() {
 
     const resepMenu = resepList.filter((r) => r.produk_id === produk.id);
     if (resepMenu.length === 0) {
-      setErrorMsg('Menu ini belum memiliki takaran resep. Atur resep di tab Menu & Resep.');
+      setErrorMsg('Menu belum memiliki resep. Atur di tab Menu & Resep.');
       return;
     }
 
@@ -622,7 +638,7 @@ export default function App() {
       const butuh = Number(item.takaran) * qty;
       if (!bahan || Number(bahan.stok_saat_ini) < butuh) {
         setErrorMsg(
-          `Stok ${bahan ? bahan.nama : 'bahan'} tidak mencukupi (butuh ${butuh} ${
+          `Stok ${bahan ? bahan.nama : 'bahan'} kurang (butuh ${butuh} ${
             bahan?.satuan || ''
           }).`
         );
@@ -681,7 +697,7 @@ export default function App() {
 
       setQtyJual(1);
       await loadAllData(true);
-      showToast(`Penjualan ${qty}x ${produk.nama} tersimpan. Stok terpotong otomatis.`);
+      showToast(`Tersimpan: ${qty}x ${produk.nama}. Stok terpotong otomatis.`);
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menyimpan transaksi.');
     } finally {
@@ -689,7 +705,6 @@ export default function App() {
     }
   };
 
-  // Proses 1.0: Tambah Pengadaan Bahan
   const handleAddStock = async (e) => {
     e.preventDefault();
     const bahan = bahanBaku.find((b) => b.id === selectedBahanId);
@@ -717,7 +732,7 @@ export default function App() {
       setTotalHargaBeli('');
       setCatatanBeli('');
       await loadAllData(true);
-      showToast(`Stok ${bahan.nama} bertambah +${masuk} ${bahan.satuan}.`);
+      showToast(`Stok ${bahan.nama} +${masuk} ${bahan.satuan}.`);
     } catch (err) {
       setErrorMsg(err.message || 'Gagal mencatat pengadaan.');
     } finally {
@@ -743,13 +758,12 @@ export default function App() {
       setNewBahanMin('');
       setNewBahanLimbah('0');
       await loadAllData(true);
-      showToast('Bahan baku baru ditambahkan.');
+      showToast('Bahan baku ditambahkan.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menambah bahan baku.');
     }
   };
 
-  // Kustomisasi Menu & Resep
   const handleCreateMenu = async (e) => {
     e.preventDefault();
     if (!newMenuNama.trim() || Number(newMenuHarga) <= 0) return;
@@ -766,7 +780,7 @@ export default function App() {
       setEditMenuId(data.id);
       setEditMenuHarga(String(data.harga));
       await loadAllData(true);
-      showToast('Menu baru ditambahkan. Silakan atur takaran resepnya.');
+      showToast('Menu ditambahkan.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal menambah menu.');
     }
@@ -783,7 +797,7 @@ export default function App() {
         .eq('id', editMenuId);
       if (error) throw error;
       await loadAllData(true);
-      showToast('Harga menu diperbarui.');
+      showToast('Harga diperbarui.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal memperbarui harga.');
     }
@@ -807,7 +821,7 @@ export default function App() {
       await loadAllData(true);
       showToast('Takaran resep disimpan.');
     } catch (err) {
-      setErrorMsg(err.message || 'Gagal menyimpan takaran resep.');
+      setErrorMsg(err.message || 'Gagal menyimpan resep.');
     }
   };
 
@@ -819,11 +833,10 @@ export default function App() {
       await loadAllData(true);
       showToast('Bahan dihapus dari resep.');
     } catch (err) {
-      setErrorMsg(err.message || 'Gagal menghapus bahan resep.');
+      setErrorMsg(err.message || 'Gagal menghapus bahan.');
     }
   };
 
-  // Proses 3.0: Limbah SDG 12
   const handleUpdateLimbahStatus = async (limbahId, nextStatus) => {
     setErrorMsg('');
     try {
@@ -833,9 +846,9 @@ export default function App() {
         .eq('id', limbahId);
       if (error) throw error;
       await loadAllData(true);
-      showToast('Status pemanfaatan limbah diperbarui.');
+      showToast('Status limbah diperbarui.');
     } catch (err) {
-      setErrorMsg(err.message || 'Gagal memperbarui status limbah.');
+      setErrorMsg(err.message || 'Gagal memperbarui status.');
     }
   };
 
@@ -852,7 +865,7 @@ export default function App() {
       if (error) throw error;
       setManualLimbahBerat('');
       await loadAllData(true);
-      showToast('Catatan limbah organik ditambahkan.');
+      showToast('Catatan limbah ditambahkan.');
     } catch (err) {
       setErrorMsg(err.message || 'Gagal mencatat limbah.');
     }
@@ -861,12 +874,11 @@ export default function App() {
   if (!hasEnvConfig) {
     return (
       <main className="mx-auto max-w-xl px-4 py-16">
-        <div className="rounded-xl border border-amber-300 bg-amber-50 p-6 text-ink">
+        <div className="rounded-xl border border-amber-400 bg-amber-50 p-6 text-ink">
           <h1 className="text-xl font-bold">Konfigurasi Supabase Belum Terpasang</h1>
           <p className="mt-2 text-sm text-muted">
-            Tambahkan variabel <code>VITE_SUPABASE_URL</code> dan{' '}
-            <code>VITE_SUPABASE_ANON_KEY</code> pada Environment Variables di Vercel atau file{' '}
-            <code>.env</code> lokal.
+            Isi variabel <code>VITE_SUPABASE_URL</code> dan{' '}
+            <code>VITE_SUPABASE_ANON_KEY</code> pada Environment Variables.
           </p>
         </div>
       </main>
@@ -876,167 +888,148 @@ export default function App() {
   if (authLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center p-4">
-        <p className="text-base font-medium text-muted">Memuat sesi SIPROMIN...</p>
+        <p className="text-base font-medium text-muted">Memuat SIPROMIN...</p>
       </main>
     );
   }
 
-  // HALAMAN PORTAL AKSES: ADMIN VS GUEST
+  // PORTAL LOGIN: ADMIN VS GUEST (RINGKAS, TANPA FILLER)
   if (!session && !isGuest) {
     return (
-      <main className="mx-auto flex min-h-screen max-w-4xl flex-col justify-center px-4 py-12">
-        <div className="mb-6 text-center">
-          <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-leaf">
-            SIPROMIN • SDG 12 Responsible Production
-          </span>
-          <h1 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Sistem Informasi Produksi &amp; Limbah Ngejeruk
+      <main className="mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-4 py-12">
+        <header className="mb-8 text-center">
+          <h1 className="text-2xl font-bold text-ink sm:text-3xl">
+            SIPROMIN Ngejeruk
           </h1>
-          <p className="mx-auto mt-2 max-w-xl text-sm text-muted">
-            Pilih peran akses untuk mengelola operasional harian UMKM atau memantau capaian pengelolaan limbah organik berkelanjutan.
-          </p>
-        </div>
+        </header>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-stone-300 bg-white p-6 shadow-sm sm:p-7">
-            <span className="rounded bg-stone-100 px-2.5 py-1 text-xs font-semibold text-ink">
-              Akses Internal (Full Access)
-            </span>
-            <h2 className="mt-3 text-xl font-bold text-ink">Masuk sebagai Admin</h2>
-            <p className="mt-1 text-sm text-muted">
-              Input transaksi penjualan, kontrol stok bahan baku otomatis, atur resep, dan kelola tindak lanjut limbah.
-            </p>
-
-            {authError && (
-              <div
-                role="alert"
-                className="mt-4 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-900"
-              >
-                {authError}
-              </div>
-            )}
-
-            <form onSubmit={handleLogin} className="mt-5 space-y-4">
-              <div>
-                <label htmlFor="admin-email" className="block text-sm font-medium text-ink">
-                  Email Admin
-                </label>
-                <input
-                  id="admin-email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2 text-ink"
-                  placeholder="admin@ngejeruk.id"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="admin-pass" className="block text-sm font-medium text-ink">
-                  Kata Sandi
-                </label>
-                <input
-                  id="admin-pass"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2 text-ink"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={signingIn}
-                className="min-h-[44px] w-full rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-leafHover disabled:opacity-60"
-              >
-                {signingIn ? 'Memverifikasi...' : 'Masuk Dashboard Admin'}
-              </button>
-            </form>
-          </div>
-
-          <div className="flex flex-col justify-between rounded-2xl border border-emerald-300 bg-emerald-50/50 p-6 shadow-sm sm:p-7">
+        <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-2">
+          {/* Sisi Admin */}
+          <section
+            aria-labelledby="portal-admin-title"
+            className="flex flex-col justify-between rounded-2xl border border-stone-300 bg-white p-6 sm:p-8"
+          >
             <div>
-              <span className="rounded bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-leaf">
-                Transparansi Publik (Read-Only)
-              </span>
-              <h2 className="mt-3 text-xl font-bold text-ink">
-                Masuk sebagai Guest (Pantau SDG 12)
-              </h2>
-              <p className="mt-1 text-sm text-muted">
-                Tanpa kata sandi. Ditujukan bagi penguji, mitra, atau pelanggan untuk mengevaluasi sejauh mana UMKM Ngejeruk menerapkan pengelolaan limbah ramah lingkungan.
-              </p>
+              <div className="flex flex-col items-center text-center">
+                <AdminLogo />
+                <h2 id="portal-admin-title" className="mt-4 text-xl font-bold text-ink">
+                  Admin
+                </h2>
+              </div>
 
-              <ul className="mt-5 space-y-2.5 text-sm text-ink">
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-leaf">✓</span>
-                  <span>Status kelayakan penerapan SDG 12 secara real-time</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-leaf">✓</span>
-                  <span>Chart interaktif proporsi limbah didaur ulang vs. residu</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-leaf">✓</span>
-                  <span>Evaluasi dampak perbandingan sistem lama vs. SIPROMIN</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="font-bold text-stone-400">•</span>
-                  <span className="text-muted">
-                    Data sensitif bisnis (omzet &amp; harga modal) tetap terlindungi
-                  </span>
-                </li>
-              </ul>
+              {authError && (
+                <div
+                  role="alert"
+                  className="mt-4 rounded-lg border border-red-400 bg-red-50 px-3 py-2 text-sm text-red-950"
+                >
+                  {authError}
+                </div>
+              )}
+
+              <form onSubmit={handleLogin} className="mt-6 space-y-4">
+                <div>
+                  <label htmlFor="admin-email" className="block text-sm font-medium text-ink">
+                    Email
+                  </label>
+                  <input
+                    id="admin-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
+                    placeholder="admin@ngejeruk.id"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="admin-pass" className="block text-sm font-medium text-ink">
+                    Kata Sandi
+                  </label>
+                  <input
+                    id="admin-pass"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={signingIn}
+                  className="min-h-[44px] w-full cursor-pointer rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-colors"
+                >
+                  {signingIn ? 'Memverifikasi...' : 'Masuk Admin'}
+                </button>
+              </form>
+            </div>
+          </section>
+
+          {/* Sisi Guest */}
+          <section
+            aria-labelledby="portal-guest-title"
+            className="flex flex-col justify-between rounded-2xl border border-stone-300 bg-white p-6 sm:p-8"
+          >
+            <div className="flex flex-col items-center text-center">
+              <GuestAvatar />
+              <h2 id="portal-guest-title" className="mt-4 text-xl font-bold text-ink">
+                Guest
+              </h2>
+              <p className="mt-1 text-sm text-muted">Pemantauan Limbah SDG 12</p>
             </div>
 
             <button
               type="button"
               onClick={handleEnterGuest}
-              className="mt-6 min-h-[44px] w-full rounded-lg border-2 border-leaf bg-white px-4 py-2.5 text-sm font-semibold text-leaf transition-colors hover:bg-leaf hover:text-white"
+              className="mt-8 min-h-[44px] w-full cursor-pointer rounded-lg border-2 border-leaf bg-white px-4 py-2.5 text-sm font-semibold text-leaf hover:bg-leaf hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf motion-safe:transition-colors"
             >
-              Buka Dashboard Pemantauan SDG 12
+              Masuk sebagai Guest
             </button>
-          </div>
+          </section>
         </div>
       </main>
     );
   }
 
-  // TAMPILAN KHUSUS MODE GUEST (READ-ONLY AUDITOR SDG 12)
+  // MODE GUEST (READ-ONLY AUDITOR SDG 12)
   if (isGuest && !session) {
     return (
       <div className="min-h-screen bg-paper text-ink">
         <header className="border-b border-stone-300 bg-white">
           <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-leaf">
-                  SIPROMIN • MODE GUEST (PUBLIC AUDIT)
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-leaf">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-leaf" />
-                  Live Sync
-                </span>
+            <div className="flex items-center gap-3">
+              <div
+                aria-hidden="true"
+                className="flex h-10 w-10 items-end justify-center overflow-hidden rounded-full bg-stone-300 text-stone-500"
+              >
+                <svg viewBox="0 0 48 48" className="h-8 w-8" fill="currentColor">
+                  <circle cx="24" cy="17" r="8.5" />
+                  <path d="M9 44c0-8.3 6.7-14 15-14s15 5.7 15 14" />
+                </svg>
               </div>
-              <h1 className="mt-0.5 text-lg font-bold text-ink">
-                Pemantauan Kinerja SDG 12 — UMKM Ngejeruk Minuman Segar
-              </h1>
+              <div>
+                <h1 className="text-lg font-bold text-ink">
+                  Pemantauan SDG 12: Ngejeruk
+                </h1>
+                <p className="text-xs font-medium text-leaf">Guest (Read-Only)</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="min-h-[40px] rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs font-semibold text-ink hover:bg-stone-100"
+                className="min-h-[44px] cursor-pointer rounded-lg border border-stone-300 bg-white px-3.5 py-2 text-sm font-medium text-ink hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
               >
-                Cetak / Simpan PDF
+                Cetak PDF
               </button>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="min-h-[40px] rounded-lg bg-leaf px-4 py-2 text-xs font-semibold text-white hover:bg-leafHover"
+                className="min-h-[44px] cursor-pointer rounded-lg bg-leaf px-4 py-2 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
               >
-                Kembali ke Portal Login
+                Keluar
               </button>
             </div>
           </div>
@@ -1046,33 +1039,30 @@ export default function App() {
           {errorMsg && (
             <div
               role="alert"
-              className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-900"
+              className="rounded-lg border border-red-400 bg-red-50 px-4 py-3 text-sm font-medium text-red-950"
             >
               {errorMsg}
             </div>
           )}
 
           {loadingData ? (
-            <p className="py-12 text-center text-sm text-muted">
-              Memuat indikator keberlanjutan SDG 12...
-            </p>
+            <p className="py-12 text-center text-sm text-muted">Memuat data SDG 12...</p>
           ) : (
             <>
-              <div className={`rounded-xl border p-5 transition-colors duration-300 ${metrics.statusSdg.colorClass}`}>
+              <div className={`rounded-xl border p-4 ${metrics.statusSdg.colorClass}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider opacity-80">
-                      Status Evaluasi Penerapan SDG 12
+                    <p className="text-xs font-bold uppercase tracking-wide">
+                      Status Kepatuhan SDG 12
                     </p>
-                    <h2 className="mt-1 text-xl font-bold">{metrics.statusSdg.label}</h2>
-                    <p className="mt-1 text-sm opacity-90">{metrics.statusSdg.desc}</p>
+                    <h2 className="mt-0.5 text-lg font-bold">{metrics.statusSdg.label}</h2>
                   </div>
                   <button
                     type="button"
                     onClick={() => loadAllData(false)}
-                    className="min-h-[40px] rounded-lg border border-current/25 bg-white/80 px-3 py-2 text-xs font-semibold hover:bg-white"
+                    className="min-h-[44px] cursor-pointer rounded-lg border border-current/30 bg-white/80 px-3 py-1.5 text-xs font-semibold hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                   >
-                    Segarkan Manual
+                    Segarkan
                   </button>
                 </div>
               </div>
@@ -1080,35 +1070,31 @@ export default function App() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <p className="text-xs font-semibold uppercase text-muted">
-                    Tingkat Pemanfaatan Limbah
+                    Limbah Didaur Ulang
                   </p>
                   <p className="mt-2 text-3xl font-bold text-leaf">{metrics.rasioSdg12}%</p>
-                  <p className="mt-1 text-xs text-muted">Target ideal UMKM hijau: &ge; 70%</p>
                 </div>
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <p className="text-xs font-semibold uppercase text-muted">
-                    Limbah Terselamatkan
+                    Berat Terselamatkan
                   </p>
                   <p className="mt-2 text-3xl font-bold text-ink">{metrics.dimanfaatkanKg} kg</p>
-                  <p className="mt-1 text-xs text-muted">Dialihkan dari pembuangan TPA</p>
                 </div>
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <p className="text-xs font-semibold uppercase text-muted">
-                    Menunggu Pengolahan
+                    Belum Diproses
                   </p>
-                  <p className="mt-2 text-3xl font-bold text-amber-700">
+                  <p className="mt-2 text-3xl font-bold text-amber-800">
                     {metrics.belumDiprosesKg} kg
                   </p>
-                  <p className="mt-1 text-xs text-muted">Dalam antrean proses organik</p>
                 </div>
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <p className="text-xs font-semibold uppercase text-muted">
-                    Total Produksi Terpantau
+                    Produk Terjual
                   </p>
                   <p className="mt-2 text-3xl font-bold text-ink">
                     {metrics.totalCupTerjual} cup
                   </p>
-                  <p className="mt-1 text-xs text-muted">Tercatat otomatis oleh sistem</p>
                 </div>
               </div>
 
@@ -1121,11 +1107,8 @@ export default function App() {
 
               <div className="rounded-xl border border-stone-300 bg-white p-5">
                 <h3 className="text-base font-bold text-ink">
-                  Log Transparansi Pengolahan Limbah Organik (Read-Only)
+                  Log Pengolahan Limbah Organik
                 </h3>
-                <p className="mt-0.5 text-xs text-muted">
-                  Catatan aktual sumber limbah produksi dan status tindak lanjutnya.
-                </p>
                 {limbahList.length === 0 ? (
                   <p className="mt-3 text-sm text-muted">Belum ada catatan limbah.</p>
                 ) : (
@@ -1134,9 +1117,9 @@ export default function App() {
                       <thead className="border-b border-stone-200 text-muted">
                         <tr>
                           <th className="py-2 pr-3">Waktu</th>
-                          <th className="py-2 pr-3">Sumber Limbah</th>
+                          <th className="py-2 pr-3">Sumber</th>
                           <th className="py-2 pr-3">Berat</th>
-                          <th className="py-2">Status Tindak Lanjut</th>
+                          <th className="py-2">Status</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-stone-200">
@@ -1173,7 +1156,7 @@ export default function App() {
     );
   }
 
-  // TAMPILAN ADMIN (FULL ACCESS)
+  // MODE ADMIN (FULL ACCESS)
   const navItems = [
     { id: 'dashboard', label: 'Dashboard' },
     { id: 'penjualan', label: 'Penjualan' },
@@ -1188,32 +1171,39 @@ export default function App() {
     <div className="min-h-screen bg-paper text-ink">
       <header className="border-b border-stone-300 bg-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-4">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-leaf">
-                SIPROMIN • MODE ADMIN (FULL ACCESS)
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-leaf">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-leaf" />
-                Live Sync
-              </span>
+          <div className="flex items-center gap-3">
+            <div
+              aria-hidden="true"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-leaf text-white"
+            >
+              <svg viewBox="0 0 48 48" className="h-6 w-6" fill="none">
+                <circle cx="24" cy="26" r="14" stroke="currentColor" strokeWidth="3" />
+                <path
+                  d="M24 12V40M10 26H38"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+              </svg>
             </div>
-            <h1 className="mt-0.5 text-lg font-bold text-ink">
-              Halo, Admin! Ngejeruk Minuman Segar
-            </h1>
+            <div>
+              <h1 className="text-lg font-bold text-ink">
+                SIPROMIN: Admin Ngejeruk
+              </h1>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => window.print()}
-              className="min-h-[44px] rounded-lg border border-stone-300 bg-white px-3.5 py-2 text-sm font-medium text-ink hover:bg-stone-100"
+              className="min-h-[44px] cursor-pointer rounded-lg border border-stone-300 bg-white px-3.5 py-2 text-sm font-medium text-ink hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
             >
               Cetak Laporan
             </button>
             <button
               type="button"
               onClick={handleLogout}
-              className="min-h-[44px] rounded-lg border border-stone-300 bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-stone-100"
+              className="min-h-[44px] cursor-pointer rounded-lg border border-stone-300 bg-paper px-4 py-2 text-sm font-medium text-ink hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
             >
               Keluar
             </button>
@@ -1232,7 +1222,7 @@ export default function App() {
                 type="button"
                 aria-current={active ? 'page' : undefined}
                 onClick={() => setActiveTab(tab.id)}
-                className={`min-h-[44px] shrink-0 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`min-h-[44px] shrink-0 cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf motion-safe:transition-colors ${
                   active
                     ? 'bg-leaf text-white'
                     : 'bg-paper text-ink hover:bg-stone-200'
@@ -1249,7 +1239,7 @@ export default function App() {
         {toast && (
           <div
             role="status"
-            className="mb-4 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-medium text-leaf"
+            className="mb-4 rounded-lg border border-emerald-400 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-950"
           >
             {toast}
           </div>
@@ -1258,7 +1248,7 @@ export default function App() {
         {errorMsg && (
           <div
             role="alert"
-            className="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm font-medium text-red-900"
+            className="mb-4 rounded-lg border border-red-400 bg-red-50 px-4 py-3 text-sm font-medium text-red-950"
           >
             {errorMsg}
           </div>
@@ -1279,38 +1269,38 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => loadAllData(false)}
-                    className="min-h-[44px] rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium hover:bg-stone-100"
+                    className="min-h-[44px] cursor-pointer rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                   >
                     Muat Ulang Data
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-xl border border-stone-300 bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5">
+                  <div className="rounded-xl border border-stone-300 bg-white p-5">
                     <p className="text-sm font-medium text-muted">Stok Bahan Basah</p>
                     <p className="mt-2 text-2xl font-bold text-ink">
                       {metrics.totalKgBahan} kg
                     </p>
                   </div>
-                  <div className="rounded-xl border border-stone-300 bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5">
+                  <div className="rounded-xl border border-stone-300 bg-white p-5">
                     <p className="text-sm font-medium text-muted">Produk Terjual</p>
                     <p className="mt-2 text-2xl font-bold text-ink">
                       {metrics.totalCupTerjual} cup
                     </p>
                   </div>
-                  <div className="rounded-xl border border-stone-300 bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5">
+                  <div className="rounded-xl border border-stone-300 bg-white p-5">
                     <p className="text-sm font-medium text-muted">Total Omzet</p>
                     <p className="mt-2 text-2xl font-bold text-leaf">
                       {formatRupiah(metrics.totalOmzet)}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-stone-300 bg-white p-5 transition-transform duration-200 hover:-translate-y-0.5">
+                  <div className="rounded-xl border border-stone-300 bg-white p-5">
                     <p className="text-sm font-medium text-muted">Limbah Organik</p>
                     <p className="mt-2 text-2xl font-bold text-ink">
                       {metrics.totalKgLimbah} kg
                     </p>
                     <p className="mt-1 text-xs font-medium text-leaf">
-                      Dimanfaatkan kembali: {metrics.rasioSdg12}% (Target SDG 12)
+                      Dimanfaatkan: {metrics.rasioSdg12}%
                     </p>
                   </div>
                 </div>
@@ -1328,14 +1318,14 @@ export default function App() {
                   </h3>
                   {metrics.stokMenipis.length === 0 ? (
                     <p className="mt-2 text-sm text-muted">
-                      Semua stok bahan baku dan kemasan berada di atas batas minimum.
+                      Semua stok berada di atas batas minimum.
                     </p>
                   ) : (
                     <ul className="mt-3 space-y-2">
                       {metrics.stokMenipis.map((item) => (
                         <li
                           key={item.id}
-                          className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+                          className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-400 bg-amber-50 px-3 py-2 text-sm text-amber-950"
                         >
                           <span className="font-semibold">{item.nama}</span>
                           <span>
@@ -1351,9 +1341,7 @@ export default function App() {
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h3 className="text-base font-bold text-ink">Transaksi Terbaru</h3>
                   {transaksiList.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted">
-                      Belum ada transaksi tercatat. Buka tab Penjualan untuk mencatat pesanan.
-                    </p>
+                    <p className="mt-2 text-sm text-muted">Belum ada transaksi tercatat.</p>
                   ) : (
                     <div className="mt-3 overflow-x-auto">
                       <table className="w-full text-left text-sm">
@@ -1392,15 +1380,12 @@ export default function App() {
               <section aria-labelledby="heading-penjualan" className="grid gap-6 md:grid-cols-2">
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h2 id="heading-penjualan" className="text-lg font-bold">
-                    Catat Pesanan Pelanggan
+                    Catat Pesanan
                   </h2>
-                  <p className="mt-1 text-sm text-muted">
-                    Menyimpan transaksi otomatis memotong stok bahan baku dan menghitung limbah kulit/ampas.
-                  </p>
 
                   {produkList.length === 0 ? (
                     <p className="mt-4 text-sm text-muted">
-                      Belum ada menu tersedia. Tambahkan menu di tab Menu &amp; Resep.
+                      Belum ada menu. Tambahkan di tab Menu &amp; Resep.
                     </p>
                   ) : (
                     <form onSubmit={handleRecordSale} className="mt-4 space-y-4">
@@ -1409,13 +1394,13 @@ export default function App() {
                           htmlFor="select-produk"
                           className="block text-sm font-medium"
                         >
-                          Pilih Varian Minuman
+                          Varian Minuman
                         </label>
                         <select
                           id="select-produk"
                           value={selectedProdukId}
                           onChange={(e) => setSelectedProdukId(e.target.value)}
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         >
                           {produkList.map((p) => (
                             <option key={p.id} value={p.id}>
@@ -1436,7 +1421,7 @@ export default function App() {
                           required
                           value={qtyJual}
                           onChange={(e) => setQtyJual(e.target.value)}
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         />
                       </div>
 
@@ -1451,7 +1436,7 @@ export default function App() {
                           id="select-bayar"
                           value={metodeBayar}
                           onChange={(e) => setMetodeBayar(e.target.value)}
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         >
                           <option value="Tunai">Tunai</option>
                           <option value="QRIS">QRIS</option>
@@ -1461,9 +1446,9 @@ export default function App() {
                       <button
                         type="submit"
                         disabled={submittingSale}
-                        className="min-h-[44px] w-full rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover disabled:opacity-60"
+                        className="min-h-[44px] w-full cursor-pointer rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {submittingSale ? 'Memproses...' : 'Simpan Transaksi & Potong Stok'}
+                        {submittingSale ? 'Memproses...' : 'Simpan Transaksi'}
                       </button>
                     </form>
                   )}
@@ -1500,7 +1485,7 @@ export default function App() {
                 <div className="grid gap-6 md:grid-cols-2">
                   <div className="rounded-xl border border-stone-300 bg-white p-5">
                     <h2 id="heading-stok" className="text-lg font-bold">
-                      Catat Pembelian / Stok Masuk
+                      Catat Stok Masuk
                     </h2>
                     <form onSubmit={handleAddStock} className="mt-4 space-y-4">
                       <div>
@@ -1511,11 +1496,11 @@ export default function App() {
                           id="beli-bahan"
                           value={selectedBahanId}
                           onChange={(e) => setSelectedBahanId(e.target.value)}
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         >
                           {bahanBaku.map((b) => (
                             <option key={b.id} value={b.id}>
-                              {b.nama} (Satuan: {b.satuan})
+                              {b.nama} ({b.satuan})
                             </option>
                           ))}
                         </select>
@@ -1532,8 +1517,8 @@ export default function App() {
                           required
                           value={jumlahMasuk}
                           onChange={(e) => setJumlahMasuk(e.target.value)}
-                          placeholder="Contoh: 5000 untuk 5 kg"
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          placeholder="5000"
+                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         />
                       </div>
 
@@ -1547,8 +1532,7 @@ export default function App() {
                           min="0"
                           value={totalHargaBeli}
                           onChange={(e) => setTotalHargaBeli(e.target.value)}
-                          placeholder="Opsional"
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         />
                       </div>
 
@@ -1561,17 +1545,16 @@ export default function App() {
                           type="text"
                           value={catatanBeli}
                           onChange={(e) => setCatatanBeli(e.target.value)}
-                          placeholder="Pasar Tamin / Agen Kemasan"
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         />
                       </div>
 
                       <button
                         type="submit"
                         disabled={submittingStock}
-                        className="min-h-[44px] w-full rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover disabled:opacity-60"
+                        className="min-h-[44px] w-full cursor-pointer rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        {submittingStock ? 'Menyimpan...' : 'Tambah ke Stok'}
+                        {submittingStock ? 'Menyimpan...' : 'Tambah Stok'}
                       </button>
                     </form>
                   </div>
@@ -1589,7 +1572,7 @@ export default function App() {
                           required
                           value={newBahanNama}
                           onChange={(e) => setNewBahanNama(e.target.value)}
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
@@ -1601,7 +1584,7 @@ export default function App() {
                             id="baru-satuan"
                             value={newBahanSatuan}
                             onChange={(e) => setNewBahanSatuan(e.target.value)}
-                            className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                            className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                           >
                             <option value="gram">gram</option>
                             <option value="pcs">pcs</option>
@@ -1618,7 +1601,7 @@ export default function App() {
                             max="100"
                             value={newBahanLimbah}
                             onChange={(e) => setNewBahanLimbah(e.target.value)}
-                            className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                            className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                           />
                         </div>
                       </div>
@@ -1633,7 +1616,7 @@ export default function App() {
                             min="0"
                             value={newBahanStok}
                             onChange={(e) => setNewBahanStok(e.target.value)}
-                            className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                            className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                           />
                         </div>
                         <div>
@@ -1646,13 +1629,13 @@ export default function App() {
                             min="0"
                             value={newBahanMin}
                             onChange={(e) => setNewBahanMin(e.target.value)}
-                            className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                            className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                           />
                         </div>
                       </div>
                       <button
                         type="submit"
-                        className="min-h-[44px] w-full rounded-lg border border-leaf bg-white px-4 py-2.5 text-sm font-semibold text-leaf hover:bg-emerald-50"
+                        className="min-h-[44px] w-full cursor-pointer rounded-lg border border-leaf bg-white px-4 py-2.5 text-sm font-semibold text-leaf hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       >
                         Simpan Bahan Baru
                       </button>
@@ -1661,13 +1644,13 @@ export default function App() {
                 </div>
 
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
-                  <h3 className="text-lg font-bold">Daftar Persediaan Saat Ini</h3>
+                  <h3 className="text-lg font-bold">Persediaan Saat Ini</h3>
                   <div className="mt-3 overflow-x-auto">
                     <table className="w-full text-left text-sm">
                       <thead className="border-b border-stone-200 text-muted">
                         <tr>
                           <th className="py-2 pr-3">Nama Bahan</th>
-                          <th className="py-2 pr-3">Stok Saat Ini</th>
+                          <th className="py-2 pr-3">Stok</th>
                           <th className="py-2 pr-3">Batas Min</th>
                           <th className="py-2 pr-3">Rasio Limbah</th>
                           <th className="py-2">Status</th>
@@ -1688,11 +1671,11 @@ export default function App() {
                               <td className="py-2.5 pr-3">{b.persen_limbah}%</td>
                               <td className="py-2.5">
                                 {low ? (
-                                  <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
+                                  <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-950">
                                     Menipis
                                   </span>
                                 ) : (
-                                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-leaf">
+                                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-950">
                                     Aman
                                   </span>
                                 )}
@@ -1712,7 +1695,7 @@ export default function App() {
                 <div className="space-y-6">
                   <div className="rounded-xl border border-stone-300 bg-white p-5">
                     <h2 id="heading-menu" className="text-lg font-bold">
-                      Tambah Varian Menu Baru
+                      Tambah Menu Baru
                     </h2>
                     <form onSubmit={handleCreateMenu} className="mt-4 space-y-3">
                       <div>
@@ -1725,8 +1708,7 @@ export default function App() {
                           required
                           value={newMenuNama}
                           onChange={(e) => setNewMenuNama(e.target.value)}
-                          placeholder="Contoh: Es Jeruk Peras Murni"
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         />
                       </div>
                       <div>
@@ -1740,13 +1722,12 @@ export default function App() {
                           required
                           value={newMenuHarga}
                           onChange={(e) => setNewMenuHarga(e.target.value)}
-                          placeholder="Contoh: 8000"
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         />
                       </div>
                       <button
                         type="submit"
-                        className="min-h-[44px] w-full rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover"
+                        className="min-h-[44px] w-full cursor-pointer rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       >
                         Tambah Menu
                       </button>
@@ -1769,7 +1750,7 @@ export default function App() {
                             const found = produkList.find((p) => p.id === id);
                             if (found) setEditMenuHarga(String(found.harga));
                           }}
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         >
                           {produkList.map((p) => (
                             <option key={p.id} value={p.id}>
@@ -1789,14 +1770,14 @@ export default function App() {
                           required
                           value={editMenuHarga}
                           onChange={(e) => setEditMenuHarga(e.target.value)}
-                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                          className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                         />
                       </div>
                       <button
                         type="submit"
-                        className="min-h-[44px] w-full rounded-lg border border-leaf bg-white px-4 py-2.5 text-sm font-semibold text-leaf hover:bg-emerald-50"
+                        className="min-h-[44px] w-full cursor-pointer rounded-lg border border-leaf bg-white px-4 py-2.5 text-sm font-semibold text-leaf hover:bg-emerald-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       >
-                        Simpan Perubahan Harga
+                        Simpan Harga
                       </button>
                     </form>
                   </div>
@@ -1804,20 +1785,17 @@ export default function App() {
 
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h3 className="text-lg font-bold">Takaran Resep per Cup</h3>
-                  <p className="mt-1 text-sm text-muted">
-                    Atur bahan yang otomatis terpotong setiap 1 cup terjual.
-                  </p>
 
                   <form onSubmit={handleUpsertResep} className="mt-4 space-y-3">
                     <div>
                       <label htmlFor="resep-bahan" className="block text-sm font-medium">
-                        Pilih Bahan
+                        Bahan
                       </label>
                       <select
                         id="resep-bahan"
                         value={resepBahanId}
                         onChange={(e) => setResepBahanId(e.target.value)}
-                        className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                        className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       >
                         {bahanBaku.map((b) => (
                           <option key={b.id} value={b.id}>
@@ -1837,15 +1815,15 @@ export default function App() {
                         required
                         value={resepTakaran}
                         onChange={(e) => setResepTakaran(e.target.value)}
-                        placeholder="Contoh: 150 untuk 150 gram"
-                        className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2"
+                        placeholder="150"
+                        className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="min-h-[44px] w-full rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover"
+                      className="min-h-[44px] w-full cursor-pointer rounded-lg bg-leaf px-4 py-2.5 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                     >
-                      Simpan Takaran Bahan
+                      Simpan Takaran
                     </button>
                   </form>
 
@@ -1869,7 +1847,7 @@ export default function App() {
                               <button
                                 type="button"
                                 onClick={() => handleDeleteResep(r.id)}
-                                className="min-h-[36px] rounded px-2 text-xs font-semibold text-red-800 hover:bg-red-50"
+                                className="min-h-[36px] cursor-pointer rounded px-2 text-xs font-semibold text-red-900 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                               >
                                 Hapus
                               </button>
@@ -1889,11 +1867,8 @@ export default function App() {
 
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h2 id="heading-limbah" className="text-lg font-bold">
-                    Catat Sisa Buah / Limbah Organik Tambahan
+                    Catat Limbah Organik Manual
                   </h2>
-                  <p className="mt-1 text-sm text-muted">
-                    Limbah produksi minuman tercatat otomatis saat penjualan. Gunakan form ini untuk mencatat buah rusak atau sisa sortir manual.
-                  </p>
                   <form
                     onSubmit={handleAddManualLimbah}
                     className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-4"
@@ -1908,7 +1883,7 @@ export default function App() {
                         required
                         value={manualLimbahSumber}
                         onChange={(e) => setManualLimbahSumber(e.target.value)}
-                        className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2 text-sm"
+                        className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       />
                     </div>
                     <div>
@@ -1922,18 +1897,18 @@ export default function App() {
                         required
                         value={manualLimbahBerat}
                         onChange={(e) => setManualLimbahBerat(e.target.value)}
-                        className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2 text-sm"
+                        className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-400 bg-paper px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       />
                     </div>
                     <div>
                       <label htmlFor="limbah-tindak" className="block text-xs font-medium">
-                        Tindak Lanjut SDG 12
+                        Tindak Lanjut
                       </label>
                       <select
                         id="limbah-tindak"
                         value={manualLimbahTindak}
                         onChange={(e) => setManualLimbahTindak(e.target.value)}
-                        className="mt-1 block min-h-[44px] w-full rounded-lg border border-stone-300 bg-paper px-3 py-2 text-sm"
+                        className="mt-1 block min-h-[44px] w-full cursor-pointer rounded-lg border border-stone-400 bg-paper px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       >
                         {TINDAK_LANJUT_OPTIONS.map((opt) => (
                           <option key={opt} value={opt}>
@@ -1945,7 +1920,7 @@ export default function App() {
                     <div className="flex items-end">
                       <button
                         type="submit"
-                        className="min-h-[44px] w-full rounded-lg bg-leaf px-4 py-2 text-sm font-semibold text-white hover:bg-leafHover"
+                        className="min-h-[44px] w-full cursor-pointer rounded-lg bg-leaf px-4 py-2 text-sm font-semibold text-white hover:bg-leafHover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                       >
                         Catat Limbah
                       </button>
@@ -1955,7 +1930,7 @@ export default function App() {
 
                 <div className="rounded-xl border border-stone-300 bg-white p-5">
                   <h3 className="text-lg font-bold">
-                    Log Limbah Organik &amp; Pemanfaatan (SDG 12.3 &amp; 12.5)
+                    Log Limbah Organik (SDG 12.3 &amp; 12.5)
                   </h3>
                   {limbahList.length === 0 ? (
                     <p className="mt-3 text-sm text-muted">Belum ada catatan limbah.</p>
@@ -1988,7 +1963,7 @@ export default function App() {
                                   onChange={(e) =>
                                     handleUpdateLimbahStatus(item.id, e.target.value)
                                   }
-                                  className="min-h-[40px] rounded-lg border border-stone-300 bg-paper px-2.5 py-1 text-sm"
+                                  className="min-h-[44px] cursor-pointer rounded-lg border border-stone-400 bg-paper px-2.5 py-1 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
                                 >
                                   {TINDAK_LANJUT_OPTIONS.map((opt) => (
                                     <option key={opt} value={opt}>
